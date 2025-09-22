@@ -95,6 +95,10 @@ class AdminController extends Controller
         // 배지 확인 및 부여
         $visitRecord->user->checkAndAwardBadges();
 
+        // 승인 알림 생성
+        $notificationService = app(\App\Services\NotificationService::class);
+        $notificationService->createVisitApprovedNotification($visitRecord);
+
         return redirect()->back()->with('success',
             $visitRecord->user->name . '님의 ' . $visitRecord->castle->name_korean . ' 방문이 승인되었습니다.');
     }
@@ -102,6 +106,10 @@ class AdminController extends Controller
     public function rejectVisitRecord(VisitRecord $visitRecord)
     {
         $visitRecord->update(['verification_status' => 'rejected']);
+
+        // 거부 알림 생성
+        $notificationService = app(\App\Services\NotificationService::class);
+        $notificationService->createVisitRejectedNotification($visitRecord);
 
         return redirect()->back()->with('success',
             $visitRecord->user->name . '님의 ' . $visitRecord->castle->name_korean . ' 방문이 거부되었습니다.');

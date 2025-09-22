@@ -63,6 +63,11 @@ class User extends Authenticatable
         return $this->hasMany(UserBadge::class);
     }
 
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
     public function getVerifiedVisitsCount()
     {
         return $this->visitRecords()->where('verification_status', VisitRecord::VERIFICATION_APPROVED)->count();
@@ -79,9 +84,19 @@ class User extends Authenticatable
 
         $availableBadges = Badge::where('required_visits', '<=', $verifiedVisitsCount)->get();
 
+        $newBadges = [];
         foreach ($availableBadges as $badge) {
             if (!$this->hasBadge($badge->id)) {
                 $this->badges()->attach($badge->id, ['earned_at' => now()]);
+                $newBadges[] = $badge;
+            }
+        }
+
+        // 새로 획득한 배지에 대해 알림 생성
+        if (!empty($newBadges)) {
+            $notificationService = app(\App\Services\NotificationService::class);
+            foreach ($newBadges as $badge) {
+                $notificationService->createBadgeEarnedNotification($this, $badge);
             }
         }
     }

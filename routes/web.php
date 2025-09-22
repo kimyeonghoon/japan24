@@ -3,6 +3,7 @@
 use App\Http\Controllers\CastleController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\VisitRecordController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 // 홈페이지
@@ -39,6 +40,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/castles/{castle}/visit', [VisitRecordController::class, 'create'])->name('visit-records.create');
     Route::post('/castles/{castle}/visit', [VisitRecordController::class, 'store'])->name('visit-records.store');
     Route::get('/visit-records/{visitRecord}', [VisitRecordController::class, 'show'])->name('visit-records.show');
+
+    // 알림 관련 라우트
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::get('/api/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('api.notifications.unread-count');
+    Route::get('/api/notifications/recent', [NotificationController::class, 'getRecent'])->name('api.notifications.recent');
 });
 
 // 관리자 전용 라우트들
