@@ -1,3 +1,4 @@
+# Laravel .htaccess file
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
@@ -23,3 +24,24 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Security: Prevent execution of uploaded files
+<FilesMatch "\.(php|php3|php4|php5|phtml|pl|py|jsp|asp|sh|cgi)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Security: Block access to configuration files
+<FilesMatch "\.(ini|conf|config|inc|db|sql|log)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Security: Prevent direct access to storage directory
+RedirectMatch 404 ^/storage/
+
+# Security: Set proper headers for uploaded files
+<FilesMatch "\.(jpg|jpeg|png|gif|bmp|webp)$">
+    Header set Content-Type "image"
+    Header set X-Content-Type-Options "nosniff"
+</FilesMatch>

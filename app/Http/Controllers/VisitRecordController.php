@@ -41,14 +41,22 @@ class VisitRecordController extends Controller
             'visit_date' => 'required|date|before_or_equal:today',
             'gps_latitude' => 'required|numeric|between:-90,90',
             'gps_longitude' => 'required|numeric|between:-180,180',
-            'photos.*' => 'required|image|max:2048',
-            'stamp_photo' => 'nullable|image|max:2048',
-            'visit_notes' => 'nullable|string|max:1000'
+            'photos.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'stamp_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'visit_notes' => 'nullable|string|max:1000',
+            'device_timestamp' => 'required|integer'
         ]);
 
-        // GPS 위치 검증
-        if (!$castle->isWithinAuthenticationRange($request->gps_latitude, $request->gps_longitude)) {
-            return back()->withErrors(['gps' => '성 인근이 아닌 위치에서는 인증할 수 없습니다.']);
+        // 서버 시간과 디바이스 시간 차이 검증 (5분 이내)
+        $deviceTime = (int) $request->device_timestamp;
+        $serverTime = time();
+        if (abs($serverTime - $deviceTime) > 300) {
+            return back()->withErrors(['device_timestamp' => '디바이스 시간이 서버 시간과 너무 차이납니다.']);
+        }
+
+        // GPS 위치 검증 (더 엄격한 검증)
+        if (!$castle->isWithinAuthenticationRange($request->gps_latitude, $request->gps_longitude, 100)) {
+            return back()->withErrors(['gps' => '성에서 100m 이내에서만 인증할 수 있습니다.']);
         }
 
         // 사진 업로드 처리
@@ -70,7 +78,7 @@ class VisitRecordController extends Controller
             $stampPhotoPath = $request->file('stamp_photo')->store('stamp-photos', 'public');
         }
 
-        // 방문 기록 생성
+        // 방문 기록 생성 (검증 대기 상태로)
         $visitRecord = VisitRecord::create([
             'user_id' => Auth::id(),
             'castle_id' => $castle->id,
@@ -80,14 +88,16 @@ class VisitRecordController extends Controller
             'photo_paths' => $photoPaths,
             'stamp_photo_path' => $stampPhotoPath,
             'visit_notes' => $request->visit_notes,
-            'verification_status' => 'approved' // 자동 승인 (실제로는 검증 로직 필요)
+            'verification_status' => 'pending' // 관리자 검증 대기
         ]);
 
-        // 배지 확인 및 부여
-        Auth::user()->checkAndAwardBadges();
+        // 승인된 방문 기록만 배지 확인
+        if ($visitRecord->verification_status === 'approved') {
+            Auth::user()->checkAndAwardBadges();
+        }
 
         return redirect()->route('visit-records.show', $visitRecord)
-            ->with('success', '방문 기록이 성공적으로 등록되었습니다!');
+            ->with('success', '방문 기록이 등록되었습니다. 관리자 검증 후 배지가 부여됩니다.');
     }
 
     public function show(VisitRecord $visitRecord)
