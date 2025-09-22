@@ -17,6 +17,7 @@
                     <a class="nav-link" href="{{ route('castles.index') }}">성 목록</a>
                     <a class="nav-link" href="{{ route('castles.map') }}">지도</a>
                     <a class="nav-link" href="{{ route('visit-records.index') }}">내 기록</a>
+                    <a class="nav-link" href="{{ route('social.feed') }}">🤝 소셜</a>
                     <a class="nav-link position-relative" href="{{ route('notifications.index') }}" id="notificationsLink">
                         🔔 알림
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
