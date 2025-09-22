@@ -1,0 +1,31 @@
+<?php
+
+use App\Http\Controllers\CastleController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\VisitRecordController;
+use Illuminate\Support\Facades\Route;
+
+// 홈페이지
+Route::get('/', function () {
+    return response('<h1>24명성 인증 앱</h1><p>환영합니다!</p><a href="/login">로그인</a> | <a href="/register">회원가입</a>');
+})->name('home');
+
+// 인증이 필요한 라우트들
+Route::middleware(['auth'])->group(function () {
+    // 대시보드
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // 성 관련 라우트
+    Route::get('/castles', [CastleController::class, 'index'])->name('castles.index');
+    Route::get('/castles/{castle}', [CastleController::class, 'show'])->name('castles.show');
+    Route::get('/map', [CastleController::class, 'map'])->name('castles.map');
+
+    // 방문 기록 관련 라우트
+    Route::get('/visit-records', [VisitRecordController::class, 'index'])->name('visit-records.index');
+    Route::get('/castles/{castle}/visit', [VisitRecordController::class, 'create'])->name('visit-records.create');
+    Route::post('/castles/{castle}/visit', [VisitRecordController::class, 'store'])->name('visit-records.store');
+    Route::get('/visit-records/{visitRecord}', [VisitRecordController::class, 'show'])->name('visit-records.show');
+});
+
+// 기본 인증 라우트들 (Laravel UI 또는 Breeze가 없으므로 수동으로 추가)
+require __DIR__.'/auth.php';
