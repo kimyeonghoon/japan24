@@ -53,7 +53,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/social/feed', [SocialController::class, 'feed'])->name('social.feed');
     Route::get('/social/friends', [SocialController::class, 'friends'])->name('social.friends');
     Route::get('/social/profile/{user}', [SocialController::class, 'profile'])->name('social.profile');
-    Route::post('/social/friend-request/{user}', [SocialController::class, 'sendFriendRequest'])->name('social.friend-request.send');
+    Route::post('/social/friend-request/{user}', [SocialController::class, 'sendFriendRequest'])
+        ->middleware('rate.limit.friends')
+        ->name('social.friend-request.send');
     Route::post('/social/friend-request/{user}/accept', [SocialController::class, 'acceptFriendRequest'])->name('social.friend-request.accept');
     Route::post('/social/friend-request/{user}/reject', [SocialController::class, 'rejectFriendRequest'])->name('social.friend-request.reject');
     Route::delete('/social/friend/{user}', [SocialController::class, 'unfriend'])->name('social.unfriend');

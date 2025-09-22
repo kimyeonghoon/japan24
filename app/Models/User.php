@@ -143,11 +143,15 @@ class User extends Authenticatable
     // 소셜 기능 헬퍼 메서드
     public function isFriendWith(User $user): bool
     {
-        return $this->friends()->where('friend_id', $user->id)->exists() ||
-               $this->belongsToMany(User::class, 'friendships', 'friend_id', 'user_id')
-                   ->wherePivot('status', Friendship::STATUS_ACCEPTED)
-                   ->where('user_id', $user->id)
-                   ->exists();
+        return Friendship::where('status', Friendship::STATUS_ACCEPTED)
+            ->where(function($query) use ($user) {
+                $query->where(function($q) use ($user) {
+                    $q->where('user_id', $this->id)->where('friend_id', $user->id);
+                })->orWhere(function($q) use ($user) {
+                    $q->where('user_id', $user->id)->where('friend_id', $this->id);
+                });
+            })
+            ->exists();
     }
 
     public function hasSentFriendRequestTo(User $user): bool
