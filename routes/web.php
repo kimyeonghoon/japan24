@@ -10,6 +10,20 @@ Route::get('/', function () {
     return response('<h1>24명성 인증 앱</h1><p>환영합니다!</p><a href="/login">로그인</a> | <a href="/register">회원가입</a>');
 })->name('home');
 
+// 공개 API (인증 불필요)
+Route::prefix('api/public')->group(function () {
+    Route::get('/castles', [CastleController::class, 'index'])->name('api.castles.index');
+    Route::get('/castles/{castle}', [CastleController::class, 'show'])->name('api.castles.show');
+    Route::get('/status', function () {
+        return response()->json([
+            'success' => true,
+            'message' => '24명성 인증 앱 API가 정상 작동 중입니다.',
+            'version' => '1.0.0',
+            'timestamp' => now()->toISOString()
+        ]);
+    })->name('api.status');
+});
+
 // 인증이 필요한 라우트들
 Route::middleware(['auth'])->group(function () {
     // 대시보드

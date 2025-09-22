@@ -55,6 +55,7 @@ class VisitRecordController extends Controller
             'visit_date' => 'required|date|before_or_equal:today',
             'gps_latitude' => 'required|numeric|between:-90,90',
             'gps_longitude' => 'required|numeric|between:-180,180',
+            'photos' => 'required|array|min:3',
             'photos.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'stamp_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'visit_notes' => 'nullable|string|max:1000',
@@ -98,18 +99,11 @@ class VisitRecordController extends Controller
             }
         }
 
-        // 사진 업로드 처리
+        // 사진 업로드 처리 (validation에서 이미 3장 이상 확인됨)
         $photoPaths = [];
-        if ($request->hasFile('photos')) {
-            foreach ($request->file('photos') as $photo) {
-                $path = $photo->store('castle-photos', 'public');
-                $photoPaths[] = $path;
-            }
-        }
-
-        // 사진이 3장 미만인 경우 에러
-        if (count($photoPaths) < 3) {
-            return back()->withErrors(['photos' => '성 사진을 최소 3장 업로드해야 합니다.']);
+        foreach ($request->file('photos') as $photo) {
+            $path = $photo->store('castle-photos', 'public');
+            $photoPaths[] = $path;
         }
 
         $stampPhotoPath = null;

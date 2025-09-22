@@ -65,23 +65,30 @@
 <!-- Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
 
-<!-- 카카오맵 API -->
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_API_KEY"></script>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""/>
+
+<!-- Leaflet JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
 
 <script>
 let map;
 let markers = [];
 
-// 카카오맵 초기화
+// Leaflet + OpenStreetMap 초기화
 function initMap() {
     // 일본 중심부 좌표 (도쿄 근처)
-    const mapContainer = document.getElementById('map');
-    const mapOption = {
-        center: new kakao.maps.LatLng(35.6762, 139.6503), // 도쿄
-        level: 6
-    };
+    map = L.map('map').setView([35.6762, 139.6503], 6);
 
-    map = new kakao.maps.Map(mapContainer, mapOption);
+    // OpenStreetMap 타일 레이어 추가
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+    }).addTo(map);
 
     // 모든 성 마커 추가
     @foreach($castles as $castle)
@@ -92,69 +99,58 @@ function initMap() {
 
     // 모든 마커가 보이도록 지도 범위 조정
     if (markers.length > 0) {
-        const bounds = new kakao.maps.LatLngBounds();
-        markers.forEach(marker => {
-            bounds.extend(marker.getPosition());
-        });
-        map.setBounds(bounds);
+        const group = new L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.1));
     }
 }
 
 // 성 마커 추가
 function addCastleMarker(lat, lng, koreanName, japaneseName, visitUrl, castleId) {
-    const position = new kakao.maps.LatLng(lat, lng);
-
-    // 커스텀 마커 이미지 (성 아이콘)
-    const imageSrc = 'data:image/svg+xml;base64,' + btoa(`
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
-            <circle cx="12" cy="12" r="10" fill="#007bff" stroke="#fff" stroke-width="2"/>
-            <text x="12" y="16" text-anchor="middle" fill="white" font-size="12" font-family="Arial">🏰</text>
-        </svg>
-    `);
-
-    const imageSize = new kakao.maps.Size(32, 32);
-    const imageOption = { offset: new kakao.maps.Point(16, 32) };
-    const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
-
-    const marker = new kakao.maps.Marker({
-        position: position,
-        image: markerImage
+    // 커스텀 성 아이콘
+    const castleIcon = L.divIcon({
+        className: 'custom-castle-marker',
+        html: `
+            <div style="
+                background: #007bff;
+                color: white;
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 3px solid white;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                font-size: 16px;
+            ">🏰</div>
+        `,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16]
     });
 
-    marker.setMap(map);
+    const marker = L.marker([lat, lng], { icon: castleIcon }).addTo(map);
     markers.push(marker);
 
-    // 인포윈도우 내용
-    const infowindowContent = `
-        <div style="padding:10px; min-width:200px;">
-            <h6 style="margin:0 0 5px 0; color:#007bff;">${koreanName}</h6>
+    // 팝업 내용
+    const popupContent = `
+        <div style="min-width:200px; text-align:center;">
+            <h6 style="margin:0 0 5px 0; color:#007bff; font-weight:bold;">${koreanName}</h6>
             <p style="margin:0 0 10px 0; font-size:12px; color:#666;">${japaneseName}</p>
-            <div style="text-align:center;">
-                <a href="${visitUrl}" class="btn btn-sm btn-success" style="text-decoration:none;
-                   background:#28a745; color:white; padding:5px 10px; border-radius:4px; font-size:12px;">
-                    방문 인증하기
-                </a>
-            </div>
+            <a href="${visitUrl}"
+               class="btn btn-sm btn-success"
+               style="text-decoration:none; background:#28a745; color:white;
+                      padding:8px 15px; border-radius:4px; font-size:12px;
+                      display:inline-block; margin-top:5px;">
+                🚩 방문 인증하기
+            </a>
         </div>
     `;
 
-    const infowindow = new kakao.maps.InfoWindow({
-        content: infowindowContent,
-        removable: true
-    });
+    marker.bindPopup(popupContent);
 
     // 마커 클릭 이벤트
-    kakao.maps.event.addListener(marker, 'click', function() {
-        // 다른 인포윈도우 닫기
-        markers.forEach(m => {
-            if (m.infowindow) {
-                m.infowindow.close();
-            }
-        });
-
-        infowindow.open(map, marker);
-        marker.infowindow = infowindow;
-
+    marker.on('click', function() {
         // 해당 성 카드 하이라이트
         highlightCastleCard(castleId);
     });
@@ -162,9 +158,7 @@ function addCastleMarker(lat, lng, koreanName, japaneseName, visitUrl, castleId)
 
 // 특정 성에 지도 포커스
 function focusOnCastle(lat, lng) {
-    const moveLatLon = new kakao.maps.LatLng(lat, lng);
-    map.setCenter(moveLatLon);
-    map.setLevel(3); // 확대
+    map.setView([lat, lng], 15); // 확대해서 보기
 }
 
 // 성 카드 하이라이트
@@ -186,25 +180,25 @@ function highlightCastleCard(castleId) {
 
 // 페이지 로드 시 지도 초기화
 window.addEventListener('load', function() {
-    // 카카오맵 API가 로드되었는지 확인
-    if (typeof kakao !== 'undefined' && kakao.maps) {
+    // Leaflet이 로드되었는지 확인
+    if (typeof L !== 'undefined') {
         initMap();
     } else {
-        // API 키가 없거나 로드 실패 시 구글맵으로 대체
-        initGoogleMap();
+        console.error('Leaflet 라이브러리 로드 실패');
+        initFallbackMap();
     }
 });
 
-// 구글맵 대체 함수 (카카오맵 API 사용 불가시)
-function initGoogleMap() {
+// 대체 함수 (Leaflet 로드 실패시)
+function initFallbackMap() {
     const mapDiv = document.getElementById('map');
     mapDiv.innerHTML = `
         <div class="alert alert-info text-center" role="alert">
-            <h5>지도 서비스 준비 중</h5>
-            <p>카카오맵 API 키 설정이 필요합니다. 현재는 성 목록으로 위치를 확인해주세요.</p>
+            <h5>📍 지도 서비스</h5>
+            <p>OpenStreetMap 기반 지도를 준비 중입니다. 각 성의 위치는 아래 목록에서 확인하실 수 있습니다.</p>
             <div class="mt-3">
                 <small class="text-muted">
-                    각 성의 "지도에서 보기" 버튼을 클릭하면 구글맵이나 카카오맵에서 위치를 확인할 수 있습니다.
+                    "지도에서 보기" 버튼을 클릭하면 외부 지도에서 위치를 확인할 수 있습니다.
                 </small>
             </div>
         </div>
@@ -217,9 +211,9 @@ function initGoogleMap() {
         const btn = card.querySelector('.btn-outline-primary');
         if (btn) {
             btn.onclick = function() {
-                window.open(`https://maps.google.com?q=${lat},${lng}`, '_blank');
+                window.open(`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}&zoom=15`, '_blank');
             };
-            btn.innerHTML = '구글맵에서 보기';
+            btn.innerHTML = 'OpenStreetMap에서 보기';
         }
     });
 }
