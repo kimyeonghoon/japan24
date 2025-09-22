@@ -41,5 +41,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/visit-records/{visitRecord}', [VisitRecordController::class, 'show'])->name('visit-records.show');
 });
 
+// 관리자 전용 라우트들
+Route::middleware(['auth', App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/visit-records', [App\Http\Controllers\AdminController::class, 'visitRecords'])->name('visit-records');
+    Route::post('/visit-records/{visitRecord}/approve', [App\Http\Controllers\AdminController::class, 'approveVisitRecord'])->name('visit-records.approve');
+    Route::post('/visit-records/{visitRecord}/reject', [App\Http\Controllers\AdminController::class, 'rejectVisitRecord'])->name('visit-records.reject');
+    Route::get('/users', [App\Http\Controllers\AdminController::class, 'users'])->name('users');
+    Route::post('/users/{user}/toggle-admin', [App\Http\Controllers\AdminController::class, 'toggleAdmin'])->name('users.toggle-admin');
+    Route::get('/statistics', [App\Http\Controllers\AdminController::class, 'statistics'])->name('statistics');
+});
+
 // 기본 인증 라우트들 (Laravel UI 또는 Breeze가 없으므로 수동으로 추가)
 require __DIR__.'/auth.php';

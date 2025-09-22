@@ -17,6 +17,11 @@
                     <a class="nav-link" href="{{ route('castles.index') }}">성 목록</a>
                     <a class="nav-link" href="{{ route('castles.map') }}">지도</a>
                     <a class="nav-link" href="{{ route('visit-records.index') }}">내 기록</a>
+                    @if(auth()->user()->isAdmin())
+                        <a class="nav-link text-warning" href="{{ route('admin.dashboard') }}">
+                            🛠️ 관리자
+                        </a>
+                    @endif
                     <form method="POST" action="/logout" class="d-inline">
                         @csrf
                         <button type="submit" class="btn btn-outline-light btn-sm">로그아웃</button>
