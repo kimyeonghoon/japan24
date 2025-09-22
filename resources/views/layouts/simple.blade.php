@@ -14,6 +14,9 @@
             <div class="navbar-nav ms-auto">
                 @auth
                     <a class="nav-link" href="/dashboard">대시보드</a>
+                    <a class="nav-link" href="{{ route('castles.index') }}">성 목록</a>
+                    <a class="nav-link" href="{{ route('castles.map') }}">지도</a>
+                    <a class="nav-link" href="{{ route('visit-records.index') }}">내 기록</a>
                     <form method="POST" action="/logout" class="d-inline">
                         @csrf
                         <button type="submit" class="btn btn-outline-light btn-sm">로그아웃</button>

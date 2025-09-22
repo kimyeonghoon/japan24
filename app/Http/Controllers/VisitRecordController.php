@@ -10,12 +10,26 @@ use Illuminate\Support\Facades\Storage;
 
 class VisitRecordController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $visitRecords = Auth::user()->visitRecords()
             ->with('castle')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
+
+        // API 요청 처리
+        if ($request->wantsJson() || $request->header('Accept') === 'application/json') {
+            return response()->json([
+                'success' => true,
+                'data' => $visitRecords->items(),
+                'pagination' => [
+                    'current_page' => $visitRecords->currentPage(),
+                    'last_page' => $visitRecords->lastPage(),
+                    'per_page' => $visitRecords->perPage(),
+                    'total' => $visitRecords->total(),
+                ]
+            ]);
+        }
 
         return view('visit-records.index', compact('visitRecords'));
     }
@@ -44,7 +58,10 @@ class VisitRecordController extends Controller
             'photos.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'stamp_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'visit_notes' => 'nullable|string|max:1000',
-            'device_timestamp' => 'required|integer'
+            'device_timestamp' => 'required|integer',
+            'gps_accuracy' => 'nullable|numeric|min:0',
+            'gps_speed' => 'nullable|numeric|min:0',
+            'gps_heading' => 'nullable|numeric|between:0,360'
         ]);
 
         // 서버 시간과 디바이스 시간 차이 검증 (5분 이내)
@@ -54,9 +71,31 @@ class VisitRecordController extends Controller
             return back()->withErrors(['device_timestamp' => '디바이스 시간이 서버 시간과 너무 차이납니다.']);
         }
 
+        // GPS 정확도 검증 (Mock GPS 방지)
+        $gpsAccuracy = $request->input('gps_accuracy');
+        if ($gpsAccuracy !== null && $gpsAccuracy > 50) {
+            return back()->withErrors(['gps' => 'GPS 정확도가 너무 낮습니다. 더 정확한 위치에서 다시 시도해주세요.']);
+        }
+
         // GPS 위치 검증 (더 엄격한 검증)
-        if (!$castle->isWithinAuthenticationRange($request->gps_latitude, $request->gps_longitude, 100)) {
-            return back()->withErrors(['gps' => '성에서 100m 이내에서만 인증할 수 있습니다.']);
+        $distance = $castle->getDistanceFromUser($request->gps_latitude, $request->gps_longitude);
+        if ($distance > 100) {
+            return back()->withErrors(['gps' => "성에서 {$distance}m 떨어져 있습니다. 100m 이내에서만 인증할 수 있습니다."]);
+        }
+
+        // 동일한 위치에서의 중복 인증 방지 (10m 이내 기존 기록 확인)
+        $recentRecord = Auth::user()->visitRecords()
+            ->where('castle_id', $castle->id)
+            ->where('created_at', '>=', now()->subHours(1))
+            ->first();
+
+        if ($recentRecord) {
+            $recentDistance = $castle->getDistanceFromUser($recentRecord->gps_latitude, $recentRecord->gps_longitude);
+            $currentDistance = $castle->getDistanceFromUser($request->gps_latitude, $request->gps_longitude);
+
+            if (abs($recentDistance - $currentDistance) < 10) {
+                return back()->withErrors(['gps' => '최근 1시간 내 동일한 위치에서 이미 인증 시도가 있었습니다.']);
+            }
         }
 
         // 사진 업로드 처리
