@@ -97,7 +97,22 @@ function initMap() {
                        "{{ route('visit-records.create', $castle) }}", {{ $castle->id }});
     @endforeach
 
-    // 모든 마커가 보이도록 지도 범위 조정
+    // URL 파라미터로 특정 성에 포커스
+    const urlParams = new URLSearchParams(window.location.search);
+    const focusCastleId = urlParams.get('focus');
+
+    if (focusCastleId) {
+        // 특정 성에 포커스
+        @foreach($castles as $castle)
+            if ({{ $castle->id }} == focusCastleId) {
+                map.setView([{{ $castle->latitude }}, {{ $castle->longitude }}], 15);
+                highlightCastleCard({{ $castle->id }});
+                return; // 포커스를 찾았으면 전체 bounds 조정 생략
+            }
+        @endforeach
+    }
+
+    // 포커스할 성이 없으면 모든 마커가 보이도록 지도 범위 조정
     if (markers.length > 0) {
         const group = new L.featureGroup(markers);
         map.fitBounds(group.getBounds().pad(0.1));
