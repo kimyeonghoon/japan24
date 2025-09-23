@@ -1,15 +1,46 @@
 #!/bin/bash
 
-# Monitoring Setup Script for Japan24
-# This script sets up basic monitoring tools and health checks
+# Japan24 모니터링 시스템 설정 스크립트
+#
+# 이 스크립트는 Japan24 애플리케이션을 위한 포괄적인 모니터링 시스템을 설정합니다.
+# Prometheus, Grafana, Node Exporter를 통한 완전한 모니터링 스택을 구축합니다.
+#
+# 포함된 모니터링 도구:
+# - Prometheus: 메트릭 수집 및 저장
+# - Grafana: 시각화 대시보드 (포트: 3000)
+# - Node Exporter: 시스템 메트릭 수집
+# - 자동 헬스 체크: 애플리케이션 상태 모니터링
+# - 로그 로테이션: 디스크 공간 관리
+# - 알림 시스템: 이메일 기반 알림
+#
+# 모니터링 대상:
+# - 애플리케이션 가용성 (HTTP 200 응답)
+# - 데이터베이스 연결 상태
+# - 시스템 리소스 (CPU, 메모리, 디스크)
+# - Nginx 웹 서버 상태
+# - PHP-FPM 프로세스 상태
+#
+# 사용법:
+#   ./scripts/monitoring-setup.sh
+#
+# 설정 후 접속:
+#   Prometheus: http://localhost:9090
+#   Grafana: http://localhost:3000 (admin/admin123)
+#
+# 주의사항:
+# - Grafana 기본 비밀번호를 반드시 변경하세요
+# - 알림 이메일 주소를 실제 관리자 주소로 설정하세요
+# - 프로덕션 환경에서는 방화벽 설정을 확인하세요
 
+# 스크립트 실행 중 오류 발생 시 즉시 중단
 set -e
 
-echo "📊 Setting up monitoring for Japan24..."
+echo "📊 Japan24 모니터링 시스템 설정을 시작합니다..."
 
-# Create monitoring directories
-mkdir -p monitoring/{grafana,prometheus}
-mkdir -p scripts/health-checks
+# Step 1: 모니터링 관련 디렉토리 구조 생성
+echo "📁 모니터링 디렉토리 구조 생성 중..."
+mkdir -p monitoring/{grafana,prometheus}    # Grafana 및 Prometheus 설정 디렉토리
+mkdir -p scripts/health-checks              # 헬스 체크 스크립트 디렉토리
 
 # Create Docker Compose override for monitoring
 cat > monitoring/docker-compose.monitoring.yml <<EOF

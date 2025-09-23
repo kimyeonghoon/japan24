@@ -1,61 +1,163 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏯 Japan24 - 일본 24명성 인증 시스템
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![PHP](https://img.shields.io/badge/PHP-8.2-777BB4?logo=php&logoColor=white)
+![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+![Security](https://img.shields.io/badge/Security-Hardened-red.svg)
 
-## About Laravel
+일본의 유명한 24개 성을 방문하고 인증할 수 있는 웹 애플리케이션입니다. GPS 위치 인증, 사진 업로드, 스탬프 수집 등을 통해 성 방문을 기록하고 배지를 획득할 수 있습니다.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## ✨ 주요 기능
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 🏰 **핵심 기능**
+- **GPS 위치 인증**: 실제 성 위치에서만 인증 가능 (정확도 100m)
+- **사진 인증**: 성 사진 3장 + 스탬프 사진 1장 업로드
+- **배지 시스템**: 방문 횟수에 따른 6단계 성취 시스템
+- **진행률 추적**: 24개 성 완주 진행률 실시간 표시
+- **지도 연동**: OpenStreetMap 기반 대화형 지도
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 👥 **소셜 기능**
+- **친구 시스템**: 친구 추가/관리 및 방문 기록 공유
+- **소셜 피드**: 친구들의 최신 방문 기록 타임라인
+- **좋아요 시스템**: 방문 기록에 좋아요 및 댓글
+- **실시간 알림**: 친구 요청, 좋아요, 배지 획득 알림
 
-## Learning Laravel
+### 🔧 **관리 기능**
+- **관리자 대시보드**: 방문 기록 승인/거부, 사용자 관리
+- **통계 시스템**: 인기 성, 활성 사용자, 완주율 분석
+- **모니터링**: 실시간 성능 모니터링 및 로깅
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🚀 빠른 시작
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 전제 조건
+- Docker & Docker Compose
+- PHP 8.2+ (로컬 개발용)
+- Git
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 1. 저장소 클론
+```bash
+git clone https://github.com/your-username/japan24.git
+cd japan24
+```
 
-## Laravel Sponsors
+### 2. 환경 설정
+```bash
+# 환경 변수 설정
+cp .env.example .env
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 애플리케이션 키 생성
+php artisan key:generate
 
-### Premium Partners
+# 의존성 설치
+composer install
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 3. 개발 환경 실행
+```bash
+# Docker 개발 환경 시작
+docker compose up -d
 
-## Contributing
+# 데이터베이스 마이그레이션 및 시딩
+docker compose exec app php artisan migrate:fresh --seed
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 4. 접속
+- **웹 애플리케이션**: http://localhost:8000
+- **관리자 페널**: http://localhost:8000/admin
 
-## Code of Conduct
+## 🏭 프로덕션 배포
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 원클릭 배포
+```bash
+# 프로덕션 환경 설정
+cp .env.production.example .env.production
+# .env.production 파일 편집 필요
 
-## Security Vulnerabilities
+# SSL 인증서 생성 (개발용)
+./scripts/generate-ssl.sh
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 프로덕션 배포 실행
+./scripts/deploy.sh
+```
 
-## License
+### 모니터링 설정
+```bash
+# Prometheus + Grafana 모니터링 스택 설치
+./scripts/monitoring-setup.sh
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 접속 정보
+# Grafana: http://localhost:3000 (admin/admin123)
+# Prometheus: http://localhost:9090
+```
+
+자세한 배포 가이드는 [README-DEPLOYMENT.md](README-DEPLOYMENT.md)를 참조하세요.
+
+## 📊 성능 지표
+
+- **🚀 쿼리 성능**: 캐시 시스템으로 93.6% 성능 향상
+- **🔒 보안**: Rate Limiting, CSRF 보호, XSS 방지
+- **📱 반응형**: Bootstrap 5 기반 모바일 친화적 UI
+- **⚡ 최적화**: 이미지 압축, Gzip, HTTP/2 지원
+
+## 🛠️ 기술 스택
+
+### Backend
+- **Framework**: Laravel 12 (PHP 8.2)
+- **Database**: SQLite (개발) / MySQL/PostgreSQL (프로덕션)
+- **Cache**: Redis
+- **Queue**: Redis/Database
+
+### Frontend
+- **UI Framework**: Bootstrap 5
+- **Map**: OpenStreetMap + Leaflet.js
+- **Icons**: Bootstrap Icons
+
+### DevOps
+- **Containerization**: Docker + Docker Compose
+- **Web Server**: Nginx (프로덕션)
+- **SSL**: Let's Encrypt 지원
+- **Monitoring**: Prometheus + Grafana
+
+## 📚 문서
+
+- [🚀 배포 가이드](README-DEPLOYMENT.md)
+- [🔒 보안 가이드](SECURITY.md)
+
+## 🤝 기여하기
+
+1. 저장소를 포크합니다
+2. 기능 브랜치를 생성합니다 (`git checkout -b feature/amazing-feature`)
+3. 변경사항을 커밋합니다 (`git commit -m 'Add amazing feature'`)
+4. 브랜치에 푸시합니다 (`git push origin feature/amazing-feature`)
+5. Pull Request를 생성합니다
+
+### 개발 가이드라인
+- PSR-12 코딩 표준 준수
+- 모든 코드에 한글 주석 작성
+- 보안 취약점 사전 검토
+
+## 🏆 배지 시스템
+
+| 배지 | 필요 방문 횟수 | 설명 |
+|------|----------------|------|
+| 🏯 초보자 | 1회 | 첫 번째 성 방문 |
+| 🏰 성 순례 입문 | 3회 | 성 탐방 시작 |
+| 🏯 성 애호가 | 8회 | 진정한 성 애호가 |
+| 👑 성 마스터 | 15회 | 성 전문가 수준 |
+| 🎌 성 박사 | 20회 | 성 연구자 수준 |
+| ⭐ 성 컴플리트 | 24회 | 모든 성 정복 |
+
+## 📄 라이센스
+
+이 프로젝트는 MIT 라이센스 하에 배포됩니다.
+
+## 🔒 보안
+
+보안 취약점을 발견하시면 [SECURITY.md](SECURITY.md)의 가이드라인에 따라 신고해주세요.
+
+---
+
+**🏯 일본의 아름다운 성들을 함께 탐험해보세요!**
+
+Made with ❤️ by Japan24 Development Team

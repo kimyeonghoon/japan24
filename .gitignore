@@ -27,10 +27,22 @@
 # Monitoring data
 /monitoring/grafana/data/
 /monitoring/prometheus/data/
+# Database files
+/database/database.sqlite
+/database/*.sqlite
 # Temporary files
 *.tmp
 *.swp
 *~
+# Additional security
+.env.local
+.env.production
+.env.staging
+composer.phar
+# IDE files
+.idea/
+.vscode/
+*.sublime-*
 Homestead.json
 Homestead.yaml
 Thumbs.db

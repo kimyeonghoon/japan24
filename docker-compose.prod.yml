@@ -1,28 +1,49 @@
+# Japan24 프로덕션 환경 Docker Compose 설정
+#
+# 이 파일은 Japan24 애플리케이션을 프로덕션 환경에 배포하기 위한
+# Docker Compose 설정을 정의합니다.
+#
+# 포함된 서비스:
+# - app: PHP-FPM 애플리케이션 서버 (Laravel)
+# - webserver: Nginx 웹 서버 (리버스 프록시)
+# - redis: 캐시 및 세션 저장소
+#
+# 사용법:
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# 주의사항:
+# - 프로덕션 배포 전 .env 파일을 반드시 설정하세요
+# - SSL 인증서를 docker/ssl/ 디렉토리에 배치하세요
+# - 리소스 제한이 적용되어 있으니 서버 사양을 확인하세요
+
 services:
+  # PHP 애플리케이션 서버 컨테이너
   app:
     build:
       context: .
-      dockerfile: docker/production/Dockerfile
-    image: castle24-app:production
-    container_name: castle24-app-prod
-    restart: always
-    working_dir: /var/www/
+      dockerfile: docker/production/Dockerfile  # 프로덕션 최적화 Dockerfile 사용
+    image: castle24-app:production              # 프로덕션 이미지 태그
+    container_name: castle24-app-prod          # 프로덕션 컨테이너 이름
+    restart: always                            # 시스템 재부팅 시 자동 시작
+    working_dir: /var/www/                     # Laravel 프로젝트 루트 디렉토리
     volumes:
-      - ./storage/app:/var/www/storage/app
-      - ./storage/logs:/var/www/storage/logs
-      - ./bootstrap/cache:/var/www/bootstrap/cache
+      # 데이터 영속성을 위한 볼륨 마운트 (읽기/쓰기)
+      - ./storage/app:/var/www/storage/app           # 업로드된 파일 저장소
+      - ./storage/logs:/var/www/storage/logs         # 애플리케이션 로그
+      - ./bootstrap/cache:/var/www/bootstrap/cache   # Laravel 부트스트랩 캐시
     networks:
-      - castle24-prod
+      - castle24-prod                          # 프로덕션 네트워크
     environment:
-      - APP_ENV=production
-      - APP_DEBUG=false
-      - LOG_LEVEL=error
+      # 프로덕션 환경 변수 (보안을 위해 최소한만 설정)
+      - APP_ENV=production                     # Laravel 환경: 프로덕션
+      - APP_DEBUG=false                        # 디버그 모드 비활성화 (보안)
+      - LOG_LEVEL=error                        # 로그 레벨: 에러만 기록
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 512M                         # 최대 메모리 사용량 제한
         reservations:
-          memory: 256M
+          memory: 256M                         # 보장되는 최소 메모리
 
   webserver:
     image: nginx:alpine

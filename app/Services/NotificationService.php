@@ -7,8 +7,42 @@ use App\Models\User;
 use App\Models\Badge;
 use App\Models\VisitRecord;
 
+/**
+ * 알림 서비스 클래스
+ *
+ * 이 클래스는 Japan24 애플리케이션의 실시간 알림 시스템을 담당합니다.
+ * 사용자의 활동에 따른 다양한 알림을 생성하고 관리하는 기능을 제공합니다.
+ *
+ * 지원하는 알림 유형:
+ * - 배지 획득 알림 (🏅)
+ * - 방문 기록 승인/거부 알림 (✅/❌)
+ * - 친구 요청 알림 (👥)
+ * - 친구 요청 수락 알림 (🤝)
+ * - 좋아요 알림 (❤️)
+ *
+ * 알림 시스템 특징:
+ * - 실시간 알림 생성
+ * - 풍부한 메타데이터 저장
+ * - 읽음/읽지 않음 상태 관리
+ * - 사용자별 알림 카운트
+ * - 이모지를 활용한 직관적인 UI
+ *
+ * @package App\Services
+ * @author Japan24 Development Team
+ * @version 1.0.0
+ */
 class NotificationService
 {
+    /**
+     * 배지 획득 알림을 생성합니다.
+     *
+     * 사용자가 새로운 배지를 획득했을 때 축하 알림을 생성합니다.
+     * 배지 정보와 함께 상세한 메타데이터를 포함합니다.
+     *
+     * @param User $user 배지를 획득한 사용자
+     * @param Badge $badge 획득한 배지 정보
+     * @return Notification 생성된 알림 객체
+     */
     public function createBadgeEarnedNotification(User $user, Badge $badge): Notification
     {
         return Notification::create([

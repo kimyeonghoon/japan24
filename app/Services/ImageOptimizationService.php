@@ -5,10 +5,48 @@ namespace App\Services;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * 이미지 최적화 서비스 클래스
+ *
+ * 이 클래스는 Japan24 애플리케이션에서 업로드되는 이미지들을 최적화하는 기능을 제공합니다.
+ * 방문 인증 사진, 스탬프 사진 등을 효율적으로 처리하여 서버 용량과 대역폭을 절약합니다.
+ *
+ * 주요 기능:
+ * - 이미지 리사이즈 및 압축 (최대 1200x1200, 품질 85%)
+ * - 썸네일 자동 생성 (300x300)
+ * - 다양한 이미지 포맷 지원 (JPEG, PNG, GIF)
+ * - 투명도 유지 (PNG 이미지)
+ * - 압축률 계산 및 모니터링
+ * - 일괄 처리 지원
+ *
+ * 사용 예시:
+ * - 성 방문 인증 사진 최적화
+ * - 스탬프 북 사진 처리
+ * - 사용자 프로필 이미지 처리
+ *
+ * @package App\Services
+ * @author Japan24 Development Team
+ * @version 1.0.0
+ */
 class ImageOptimizationService
 {
     /**
      * 이미지를 최적화하여 저장합니다.
+     *
+     * 업로드된 이미지 파일을 최적화하여 서버에 저장합니다.
+     * 자동으로 리사이즈, 압축, 썸네일 생성을 수행합니다.
+     *
+     * @param UploadedFile $file 업로드된 이미지 파일
+     * @param string $folder 저장할 폴더 경로
+     * @param array $options 최적화 옵션 배열
+     *                      - max_width: 최대 너비 (기본: 1200px)
+     *                      - max_height: 최대 높이 (기본: 1200px)
+     *                      - quality: JPEG 품질 (기본: 85%)
+     *                      - create_thumbnail: 썸네일 생성 여부 (기본: true)
+     *                      - thumbnail_size: 썸네일 크기 (기본: 300px)
+     * @return string 저장된 이미지 파일 경로
+     * @throws \InvalidArgumentException 지원하지 않는 이미지 형식인 경우
+     * @throws \RuntimeException 이미지 처리 실패 시
      */
     public function optimizeAndStore(UploadedFile $file, string $folder, array $options = []): string
     {
