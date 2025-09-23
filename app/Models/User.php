@@ -12,6 +12,9 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    // 친구 관계 캐시
+    private $friendshipCache = null;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -81,9 +84,34 @@ class User extends Authenticatable
 
     public function friends()
     {
-        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
-            ->wherePivot('status', Friendship::STATUS_ACCEPTED)
-            ->withTimestamps();
+        // 단순한 방법으로 친구 관계 조회
+        $friendIds = collect();
+
+        // 내가 보낸 친구 요청이 수락된 경우
+        $sentFriends = Friendship::where('user_id', $this->id)
+            ->where('status', Friendship::STATUS_ACCEPTED)
+            ->pluck('friend_id');
+
+        // 내가 받은 친구 요청이 수락된 경우
+        $receivedFriends = Friendship::where('friend_id', $this->id)
+            ->where('status', Friendship::STATUS_ACCEPTED)
+            ->pluck('user_id');
+
+        $allFriendIds = $sentFriends->merge($receivedFriends)->unique();
+
+        return User::whereIn('id', $allFriendIds);
+    }
+
+    public function friendsWithRelation()
+    {
+        return $this->hasMany(Friendship::class, 'user_id')
+            ->where('status', Friendship::STATUS_ACCEPTED);
+    }
+
+    public function friendsAsReceiverWithRelation()
+    {
+        return $this->hasMany(Friendship::class, 'friend_id')
+            ->where('status', Friendship::STATUS_ACCEPTED);
     }
 
     public function visitRecordLikes()
@@ -140,18 +168,149 @@ class User extends Authenticatable
         $this->update(['is_admin' => false]);
     }
 
+    // 친구 관계 캐시 초기화
+    private function initializeFriendshipCache(): void
+    {
+        if ($this->friendshipCache === null) {
+            $this->friendshipCache = collect();
+
+            // 모든 친구 관계를 한 번에 가져와서 캐시
+            $friendships = Friendship::where('status', Friendship::STATUS_ACCEPTED)
+                ->where(function($query) {
+                    $query->where('user_id', $this->id)
+                          ->orWhere('friend_id', $this->id);
+                })
+                ->get();
+
+            foreach ($friendships as $friendship) {
+                if ($friendship->user_id == $this->id) {
+                    $this->friendshipCache->push($friendship->friend_id);
+                } else {
+                    $this->friendshipCache->push($friendship->user_id);
+                }
+            }
+        }
+    }
+
     // 소셜 기능 헬퍼 메서드
     public function isFriendWith(User $user): bool
     {
-        return Friendship::where('status', Friendship::STATUS_ACCEPTED)
-            ->where(function($query) use ($user) {
-                $query->where(function($q) use ($user) {
-                    $q->where('user_id', $this->id)->where('friend_id', $user->id);
-                })->orWhere(function($q) use ($user) {
-                    $q->where('user_id', $user->id)->where('friend_id', $this->id);
-                });
-            })
-            ->exists();
+        // 관계가 이미 로드되어 있다면 메모리에서 확인
+        if ($this->relationLoaded('friendsWithRelation')) {
+            $hasFriend = $this->friendsWithRelation->contains(function($friendship) use ($user) {
+                return $friendship->friend_id == $user->id;
+            });
+            if ($hasFriend) {
+                return true;
+            }
+        }
+
+        if ($this->relationLoaded('friendsAsReceiverWithRelation')) {
+            $hasFriend = $this->friendsAsReceiverWithRelation->contains(function($friendship) use ($user) {
+                return $friendship->user_id == $user->id;
+            });
+            if ($hasFriend) {
+                return true;
+            }
+        }
+
+        // friends 관계가 로드되어 있다면 그것도 확인
+        if ($this->relationLoaded('friends')) {
+            return $this->friends->contains('id', $user->id);
+        }
+
+        // 캐시를 사용한 확인
+        $this->initializeFriendshipCache();
+        return $this->friendshipCache->contains($user->id);
+    }
+
+    // 친구 추천 (공통 친구 기반)
+    public function getFriendSuggestions($limit = 10)
+    {
+        // 현재 사용자의 친구 ID 수집
+        $sentFriends = Friendship::where('user_id', $this->id)
+            ->where('status', Friendship::STATUS_ACCEPTED)
+            ->pluck('friend_id')->toArray();
+
+        $receivedFriends = Friendship::where('friend_id', $this->id)
+            ->where('status', Friendship::STATUS_ACCEPTED)
+            ->pluck('user_id')->toArray();
+
+        $myFriendIds = array_unique(array_merge($sentFriends, $receivedFriends));
+
+        // 제외할 사용자 ID 수집
+        $excludedUserIds = $myFriendIds;
+        $excludedUserIds[] = $this->id; // 본인 제외
+
+        // 보낸/받은 친구 요청 사용자들도 제외
+        $pendingRequestUserIds = $this->sentFriendRequests()
+            ->where('status', Friendship::STATUS_PENDING)
+            ->pluck('friend_id')->toArray();
+
+        $receivedRequestUserIds = $this->receivedFriendRequests()
+            ->where('status', Friendship::STATUS_PENDING)
+            ->pluck('user_id')->toArray();
+
+        $excludedUserIds = array_merge($excludedUserIds, $pendingRequestUserIds, $receivedRequestUserIds);
+        $excludedUserIds = array_unique($excludedUserIds);
+
+        $suggestions = collect();
+
+        // 1단계: 공통 친구가 있는 사용자 찾기
+        if (count($myFriendIds) > 0) {
+            // 내 친구들의 친구를 찾기 (양방향)
+            $commonFriendCandidates = collect();
+
+            // 내 친구가 보낸 친구 요청으로부터
+            $candidates1 = Friendship::whereIn('user_id', $myFriendIds)
+                ->where('status', Friendship::STATUS_ACCEPTED)
+                ->whereNotIn('friend_id', $excludedUserIds)
+                ->selectRaw('friend_id as candidate_id, COUNT(*) as common_count')
+                ->groupBy('friend_id')
+                ->get();
+
+            // 내 친구가 받은 친구 요청으로부터
+            $candidates2 = Friendship::whereIn('friend_id', $myFriendIds)
+                ->where('status', Friendship::STATUS_ACCEPTED)
+                ->whereNotIn('user_id', $excludedUserIds)
+                ->selectRaw('user_id as candidate_id, COUNT(*) as common_count')
+                ->groupBy('user_id')
+                ->get();
+
+            // 두 결과 합치기
+            $allCandidates = $candidates1->concat($candidates2)
+                ->groupBy('candidate_id')
+                ->map(function ($group) {
+                    return $group->sum('common_count');
+                })
+                ->sortDesc();
+
+            foreach ($allCandidates->take($limit) as $candidateId => $commonCount) {
+                $user = User::find($candidateId);
+                if ($user && !in_array($user->id, $excludedUserIds)) {
+                    $user->common_friends_count = $commonCount;
+                    $suggestions->push($user);
+                }
+            }
+        }
+
+        // 2단계: 부족하면 새로운 사용자로 채우기
+        if ($suggestions->count() < $limit) {
+            $newUserIds = $suggestions->pluck('id')->toArray();
+            $finalExcludedIds = array_merge($excludedUserIds, $newUserIds);
+
+            $newUsers = User::whereNotIn('id', $finalExcludedIds)
+                ->orderBy('created_at', 'desc')
+                ->limit($limit - $suggestions->count())
+                ->get();
+
+            foreach ($newUsers as $user) {
+                $user->common_friends_count = 0;
+                $suggestions->push($user);
+            }
+        }
+
+        return $suggestions->take($limit);
     }
 
     public function hasSentFriendRequestTo(User $user): bool

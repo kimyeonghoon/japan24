@@ -92,6 +92,10 @@ class AdminController extends Controller
     {
         $visitRecord->update(['verification_status' => 'approved']);
 
+        // 캐시 무효화
+        $cacheService = app(\App\Services\CacheService::class);
+        $cacheService->invalidateVisitRelatedCache($visitRecord->user_id, $visitRecord->castle_id);
+
         // 배지 확인 및 부여
         $visitRecord->user->checkAndAwardBadges();
 
@@ -106,6 +110,10 @@ class AdminController extends Controller
     public function rejectVisitRecord(VisitRecord $visitRecord)
     {
         $visitRecord->update(['verification_status' => 'rejected']);
+
+        // 캐시 무효화
+        $cacheService = app(\App\Services\CacheService::class);
+        $cacheService->invalidateVisitRelatedCache($visitRecord->user_id, $visitRecord->castle_id);
 
         // 거부 알림 생성
         $notificationService = app(\App\Services\NotificationService::class);

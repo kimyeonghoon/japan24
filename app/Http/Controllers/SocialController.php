@@ -6,9 +6,16 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\VisitRecord;
 use App\Models\Friendship;
+use App\Services\NotificationService;
 
 class SocialController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     // 소셜 피드 (친구들의 공개 방문 기록)
     public function feed(Request $request)
     {
@@ -18,7 +25,12 @@ class SocialController extends Controller
         $friendIds = $user->friends()->pluck('users.id')->toArray();
         $friendIds[] = $user->id; // 자신 포함
 
-        $visitRecords = VisitRecord::with(['user', 'castle', 'likes'])
+        $visitRecords = VisitRecord::with([
+                'user.friendsWithRelation',
+                'user.friendsAsReceiverWithRelation',
+                'castle',
+                'likes'
+            ])
             ->whereIn('user_id', $friendIds)
             ->where('verification_status', VisitRecord::VERIFICATION_APPROVED)
             ->where('is_public', true)
@@ -61,6 +73,9 @@ class SocialController extends Controller
                         ->paginate(20);
                 }
                 break;
+            case 'suggestions':
+                $data['suggestions'] = $user->getFriendSuggestions(20);
+                break;
         }
 
         $data['tab'] = $tab;
@@ -101,6 +116,9 @@ class SocialController extends Controller
         $friendship = $currentUser->sendFriendRequest($user);
 
         if ($friendship) {
+            // 실시간 알림 발송
+            $this->notificationService->createFriendRequestNotification($user, $currentUser);
+
             return response()->json([
                 'success' => true,
                 'message' => "{$user->name}님에게 친구 요청을 보냈습니다.",
@@ -121,6 +139,9 @@ class SocialController extends Controller
         $success = $currentUser->acceptFriendRequest($user);
 
         if ($success) {
+            // 실시간 알림 발송 (요청자에게)
+            $this->notificationService->createFriendAcceptedNotification($user, $currentUser);
+
             return response()->json([
                 'success' => true,
                 'message' => "{$user->name}님과 친구가 되었습니다!",
@@ -187,6 +208,16 @@ class SocialController extends Controller
         }
 
         $liked = $visitRecord->toggleLike($user);
+
+        // 좋아요를 눌렀고, 본인의 게시물이 아닌 경우 알림 발송
+        if ($liked && $visitRecord->user_id !== $user->id) {
+            $this->notificationService->createLikeNotification(
+                $visitRecord->user,
+                $user,
+                $visitRecord->id,
+                $visitRecord->castle->name
+            );
+        }
 
         return response()->json([
             'success' => true,

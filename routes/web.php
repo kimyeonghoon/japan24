@@ -54,12 +54,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/social/friends', [SocialController::class, 'friends'])->name('social.friends');
     Route::get('/social/profile/{user}', [SocialController::class, 'profile'])->name('social.profile');
     Route::post('/social/friend-request/{user}', [SocialController::class, 'sendFriendRequest'])
-        ->middleware('rate.limit.friends')
+        ->middleware('throttle:friend-requests')
         ->name('social.friend-request.send');
     Route::post('/social/friend-request/{user}/accept', [SocialController::class, 'acceptFriendRequest'])->name('social.friend-request.accept');
     Route::post('/social/friend-request/{user}/reject', [SocialController::class, 'rejectFriendRequest'])->name('social.friend-request.reject');
     Route::delete('/social/friend/{user}', [SocialController::class, 'unfriend'])->name('social.unfriend');
-    Route::post('/social/visit-record/{visitRecord}/like', [SocialController::class, 'toggleLike'])->name('social.visit-record.like');
+    Route::post('/social/visit-record/{visitRecord}/like', [SocialController::class, 'toggleLike'])
+        ->middleware('throttle:likes')
+        ->name('social.visit-record.like');
 });
 
 // 관리자 전용 라우트들

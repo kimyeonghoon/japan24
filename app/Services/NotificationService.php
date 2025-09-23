@@ -57,6 +57,65 @@ class NotificationService
         ]);
     }
 
+    // 소셜 기능 알림 메서드들
+    public function createNotification(User $user, string $type, string $message, array $data = []): Notification
+    {
+        $titles = [
+            'friend_request' => '👥 새로운 친구 요청',
+            'friend_accepted' => '🎉 친구 요청 수락됨',
+            'like' => '❤️ 좋아요 알림',
+        ];
+
+        return Notification::create([
+            'user_id' => $user->id,
+            'type' => $type,
+            'title' => $titles[$type] ?? '📢 알림',
+            'message' => $message,
+            'data' => $data
+        ]);
+    }
+
+    public function createFriendRequestNotification(User $receiver, User $sender): Notification
+    {
+        return $this->createNotification(
+            $receiver,
+            Notification::TYPE_FRIEND_REQUEST,
+            "{$sender->name}님이 친구 요청을 보냈습니다.",
+            [
+                'sender_id' => $sender->id,
+                'sender_name' => $sender->name,
+            ]
+        );
+    }
+
+    public function createFriendAcceptedNotification(User $receiver, User $accepter): Notification
+    {
+        return $this->createNotification(
+            $receiver,
+            Notification::TYPE_FRIEND_ACCEPTED,
+            "{$accepter->name}님이 친구 요청을 수락했습니다!",
+            [
+                'accepter_id' => $accepter->id,
+                'accepter_name' => $accepter->name,
+            ]
+        );
+    }
+
+    public function createLikeNotification(User $receiver, User $liker, $visitRecordId, $castleName): Notification
+    {
+        return $this->createNotification(
+            $receiver,
+            Notification::TYPE_LIKE,
+            "{$liker->name}님이 회원님의 방문 기록을 좋아합니다.",
+            [
+                'liker_id' => $liker->id,
+                'liker_name' => $liker->name,
+                'visit_record_id' => $visitRecordId,
+                'castle_name' => $castleName,
+            ]
+        );
+    }
+
     public function getUnreadCount(User $user): int
     {
         return $user->notifications()->unread()->count();

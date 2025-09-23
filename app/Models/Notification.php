@@ -27,6 +27,9 @@ class Notification extends Model
     const TYPE_BADGE_EARNED = 'badge_earned';
     const TYPE_VISIT_APPROVED = 'visit_approved';
     const TYPE_VISIT_REJECTED = 'visit_rejected';
+    const TYPE_FRIEND_REQUEST = 'friend_request';
+    const TYPE_FRIEND_ACCEPTED = 'friend_accepted';
+    const TYPE_LIKE = 'like';
 
     public function user(): BelongsTo
     {

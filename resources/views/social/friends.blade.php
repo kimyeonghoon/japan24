@@ -36,6 +36,12 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link {{ $tab === 'suggestions' ? 'active' : '' }}"
+                   href="{{ route('social.friends', ['tab' => 'suggestions']) }}">
+                    추천 친구
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link {{ $tab === 'search' ? 'active' : '' }}"
                    href="{{ route('social.friends', ['tab' => 'search']) }}">
                     친구 찾기
@@ -158,6 +164,57 @@
                             <p class="text-muted">친구를 찾아서 연결해보세요!</p>
                             <a href="{{ route('social.friends', ['tab' => 'search']) }}" class="btn btn-primary">
                                 친구 찾기
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+        @elseif($tab === 'suggestions' && isset($suggestions))
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">추천 친구 (공통 친구 기반)</h5>
+                </div>
+                <div class="card-body">
+                    @if($suggestions->count() > 0)
+                        @foreach($suggestions as $suggestion)
+                            <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3" style="font-size: 2rem;">
+                                        {{ $suggestion->isAdmin() ? '👑' : '👤' }}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">{{ $suggestion->name }}</h6>
+                                        <small class="text-muted">
+                                            @if($suggestion->common_friends_count > 0)
+                                                공통 친구 {{ $suggestion->common_friends_count }}명
+                                            @else
+                                                새로운 사용자
+                                            @endif
+                                        </small>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button class="btn btn-primary btn-sm send-request-btn"
+                                            data-user-id="{{ $suggestion->id }}"
+                                            data-user-name="{{ $suggestion->name }}">
+                                        친구 요청
+                                    </button>
+                                    <a href="{{ route('social.profile', $suggestion) }}" class="btn btn-outline-primary btn-sm">
+                                        프로필
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-5">
+                            <div style="font-size: 3rem; color: #6c757d;">💡</div>
+                            <h5 class="text-muted mt-3">추천 친구가 없습니다</h5>
+                            <p class="text-muted">
+                                더 많은 친구를 만들어 추천 시스템을 활용해보세요!
+                            </p>
+                            <a href="{{ route('social.friends', ['tab' => 'search']) }}" class="btn btn-primary">
+                                직접 친구 찾기
                             </a>
                         </div>
                     @endif

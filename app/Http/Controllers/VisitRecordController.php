@@ -99,16 +99,42 @@ class VisitRecordController extends Controller
             }
         }
 
+        // 이미지 최적화 서비스 사용
+        $imageService = app(\App\Services\ImageOptimizationService::class);
+
         // 사진 업로드 처리 (validation에서 이미 3장 이상 확인됨)
         $photoPaths = [];
         foreach ($request->file('photos') as $photo) {
-            $path = $photo->store('castle-photos', 'public');
-            $photoPaths[] = $path;
+            try {
+                $path = $imageService->optimizeAndStore($photo, 'castle-photos', [
+                    'max_width' => 1200,
+                    'max_height' => 1200,
+                    'quality' => 80,
+                    'create_thumbnail' => true,
+                    'thumbnail_size' => 300,
+                ]);
+                $photoPaths[] = $path;
+            } catch (\Exception $e) {
+                // 최적화 실패 시 기본 저장 방식 사용
+                $path = $photo->store('castle-photos', 'public');
+                $photoPaths[] = $path;
+            }
         }
 
         $stampPhotoPath = null;
         if ($request->hasFile('stamp_photo')) {
-            $stampPhotoPath = $request->file('stamp_photo')->store('stamp-photos', 'public');
+            try {
+                $stampPhotoPath = $imageService->optimizeAndStore($request->file('stamp_photo'), 'stamp-photos', [
+                    'max_width' => 800,
+                    'max_height' => 800,
+                    'quality' => 75,
+                    'create_thumbnail' => true,
+                    'thumbnail_size' => 200,
+                ]);
+            } catch (\Exception $e) {
+                // 최적화 실패 시 기본 저장 방식 사용
+                $stampPhotoPath = $request->file('stamp_photo')->store('stamp-photos', 'public');
+            }
         }
 
         // 방문 기록 생성 (검증 대기 상태로)
@@ -123,6 +149,10 @@ class VisitRecordController extends Controller
             'visit_notes' => $request->visit_notes,
             'verification_status' => 'pending' // 관리자 검증 대기
         ]);
+
+        // 캐시 무효화 (방문 기록이 생성되었으므로)
+        $cacheService = app(\App\Services\CacheService::class);
+        $cacheService->invalidateVisitRelatedCache(Auth::id(), $castle->id);
 
         // 승인된 방문 기록만 배지 확인
         if ($visitRecord->verification_status === 'approved') {

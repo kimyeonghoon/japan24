@@ -28,6 +28,19 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // 친구 요청 Rate limiting: 사용자당 1분에 5번, 1시간에 20번
+        RateLimiter::for('friend-requests', function (Request $request) {
+            return [
+                Limit::perMinute(5)->by($request->user()->id),
+                Limit::perHour(20)->by($request->user()->id)
+            ];
+        });
+
+        // 좋아요 Rate limiting: 사용자당 1분에 30번
+        RateLimiter::for('likes', function (Request $request) {
+            return Limit::perMinute(30)->by($request->user()->id);
+        });
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')

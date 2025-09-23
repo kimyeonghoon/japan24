@@ -54,10 +54,11 @@
                         @if($record->getPhotos())
                             @php $photos = $record->getPhotos(); @endphp
                             <div class="mb-3">
-                                <img src="{{ asset('storage/' . $photos[0]) }}"
-                                     class="img-fluid rounded"
+                                <img data-src="{{ asset('storage/' . $photos[0]) }}"
+                                     class="img-fluid rounded lazy-image"
                                      alt="방문 사진"
-                                     style="max-height: 400px; object-fit: cover; width: 100%;">
+                                     style="max-height: 400px; object-fit: cover; width: 100%; background-color: #f8f9fa;"
+                                     src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='60'%3E%3Crect width='100%25' height='100%25' fill='%23f8f9fa'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%236c757d' font-size='12'%3E로딩 중...%3C/text%3E%3C/svg%3E">
 
                                 @if(count($photos) > 1)
                                     <small class="text-muted d-block mt-2">
@@ -131,11 +132,19 @@ document.addEventListener('DOMContentLoaded', function() {
             // 버튼 비활성화
             this.disabled = true;
 
+            // CSRF 토큰 안전하게 가져오기
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (!token) {
+                console.error('CSRF 토큰을 찾을 수 없습니다.');
+                this.disabled = false;
+                return;
+            }
+
             fetch(`/social/visit-record/${recordId}/like`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    'X-CSRF-TOKEN': token
                 }
             })
             .then(response => response.json())
@@ -162,6 +171,46 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+
+    // Lazy Loading 구현
+    const lazyImages = document.querySelectorAll('.lazy-image');
+
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                const src = img.getAttribute('data-src');
+
+                if (src) {
+                    // 이미지 로딩 중 표시
+                    img.style.filter = 'blur(2px)';
+
+                    // 실제 이미지 로드
+                    const newImg = new Image();
+                    newImg.onload = function() {
+                        img.src = src;
+                        img.style.filter = 'none';
+                        img.removeAttribute('data-src');
+                    };
+                    newImg.onerror = function() {
+                        img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="60"%3E%3Crect width="100%25" height="100%25" fill="%23f8f9fa"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23dc3545" font-size="12"%3E이미지 로드 실패%3C/text%3E%3C/svg%3E';
+                        img.style.filter = 'none';
+                    };
+                    newImg.src = src;
+
+                    observer.unobserve(img);
+                }
+            }
+        });
+    }, {
+        root: null,
+        rootMargin: '50px',
+        threshold: 0.1
+    });
+
+    lazyImages.forEach(img => {
+        imageObserver.observe(img);
+    });
 });
 </script>
 
@@ -186,6 +235,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .like-btn:disabled {
     opacity: 0.6;
+}
+
+.lazy-image {
+    transition: filter 0.3s ease;
+}
+
+.lazy-image[data-src] {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
 }
 </style>
 @endsection

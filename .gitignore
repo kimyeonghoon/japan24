@@ -3,6 +3,8 @@
 .env
 .env.backup
 .env.production
+.env.local
+.env.staging
 .phpactor.json
 .phpunit.result.cache
 /.fleet
@@ -19,6 +21,16 @@
 /storage/*.key
 /storage/pail
 /vendor
+# Docker generated files
+/docker/ssl/cert.pem
+/docker/ssl/private.key
+# Monitoring data
+/monitoring/grafana/data/
+/monitoring/prometheus/data/
+# Temporary files
+*.tmp
+*.swp
+*~
 Homestead.json
 Homestead.yaml
 Thumbs.db

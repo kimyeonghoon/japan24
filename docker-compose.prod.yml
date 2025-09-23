@@ -1,0 +1,71 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/production/Dockerfile
+    image: castle24-app:production
+    container_name: castle24-app-prod
+    restart: always
+    working_dir: /var/www/
+    volumes:
+      - ./storage/app:/var/www/storage/app
+      - ./storage/logs:/var/www/storage/logs
+      - ./bootstrap/cache:/var/www/bootstrap/cache
+    networks:
+      - castle24-prod
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - LOG_LEVEL=error
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  webserver:
+    image: nginx:alpine
+    container_name: castle24-webserver-prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./public:/var/www/public:ro
+      - ./storage/app/public:/var/www/storage/app/public:ro
+      - ./docker/nginx/production.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/ssl:/etc/nginx/ssl:ro
+    networks:
+      - castle24-prod
+    depends_on:
+      - app
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+  redis:
+    image: redis:7-alpine
+    container_name: castle24-redis-prod
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - castle24-prod
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+volumes:
+  redis_data:
+
+networks:
+  castle24-prod:
+    driver: bridge
