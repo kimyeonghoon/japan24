@@ -19,8 +19,11 @@
     <!-- Bootstrap CSS with integrity check -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
           rel="stylesheet"
-          integrity="sha384-9ndCyUa6J81PMIO3UOqC3YNDPNcGR6+7dWy6LCtKF6vEU8rNGJj5d9rG3t3ZU7"
+          integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
           crossorigin="anonymous">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
     <!-- Custom CSS for performance optimization -->
     <style>
@@ -57,35 +60,85 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="/">24명성 인증 앱</a>
+            <a class="navbar-brand" href="{{ route('home') }}">
+                <i class="bi bi-building me-2"></i>24명성 인증 앱
+            </a>
 
-            <div class="navbar-nav ms-auto">
-                @auth
-                    <a class="nav-link" href="/dashboard">대시보드</a>
-                    <a class="nav-link" href="{{ route('castles.index') }}">성 목록</a>
-                    <a class="nav-link" href="{{ route('castles.map') }}">지도</a>
-                    <a class="nav-link" href="{{ route('visit-records.index') }}">내 기록</a>
-                    <a class="nav-link" href="{{ route('social.feed') }}">🤝 소셜</a>
-                    <a class="nav-link position-relative" href="{{ route('notifications.index') }}" id="notificationsLink">
-                        🔔 알림
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                              id="notificationBadge" style="display: none; font-size: 0.6rem;">
-                            0
-                        </span>
-                    </a>
-                    @if(auth()->user()->isAdmin())
-                        <a class="nav-link text-warning" href="{{ route('admin.dashboard') }}">
-                            🛠️ 관리자
-                        </a>
-                    @endif
-                    <form method="POST" action="/logout" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-outline-light btn-sm">로그아웃</button>
-                    </form>
-                @else
-                    <a class="nav-link" href="/login">로그인</a>
-                    <a class="nav-link" href="/register">회원가입</a>
-                @endauth
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    @auth
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('dashboard') ? 'fw-bold' : '' }}" href="{{ route('dashboard') }}">
+                                <i class="bi bi-speedometer2 me-1"></i>대시보드
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('castles.*') && !request()->routeIs('castles.map') ? 'fw-bold' : '' }}" href="{{ route('castles.index') }}">
+                                <i class="bi bi-list me-1"></i>성 목록
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('castles.map') ? 'fw-bold' : '' }}" href="{{ route('castles.map') }}">
+                                <i class="bi bi-geo-alt me-1"></i>지도
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('visit-records.*') ? 'fw-bold' : '' }}" href="{{ route('visit-records.index') }}">
+                                <i class="bi bi-journal-check me-1"></i>방문 기록
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('social.*') ? 'fw-bold' : '' }}" href="{{ route('social.feed') }}">
+                                <i class="bi bi-people me-1"></i>소셜
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link position-relative {{ request()->routeIs('notifications.*') ? 'fw-bold' : '' }}" href="{{ route('notifications.index') }}" id="notificationsLink">
+                                <i class="bi bi-bell me-1"></i>알림
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                      id="notificationBadge" style="display: none; font-size: 0.6rem;">
+                                    0
+                                </span>
+                            </a>
+                        </li>
+                        @if(auth()->user()->isAdmin())
+                            <li class="nav-item">
+                                <a class="nav-link text-warning {{ request()->routeIs('admin.*') ? 'fw-bold' : '' }}" href="{{ route('admin.dashboard') }}">
+                                    <i class="bi bi-tools me-1"></i>관리자
+                                </a>
+                            </li>
+                        @endif
+                    @endauth
+                </ul>
+
+                <ul class="navbar-nav">
+                    @auth
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-1"></i>{{ Auth::user()->name }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item">로그아웃</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    @else
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('login') }}">로그인</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('register') }}">회원가입</a>
+                        </li>
+                    @endauth
+                </ul>
             </div>
         </div>
     </nav>

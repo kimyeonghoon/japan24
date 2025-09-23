@@ -20,9 +20,12 @@ services:
     restart: unless-stopped
     ports:
       - "8000:80"
+      - "8443:443"
     volumes:
       - ./:/var/www
       - ./docker/nginx:/etc/nginx/conf.d
+      - ./docker/ssl:/etc/ssl/certs
+      - ./docker/ssl:/etc/ssl/private
     networks:
       - castle24
 
