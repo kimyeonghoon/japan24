@@ -106,27 +106,46 @@ function initMap() {
 
 // 성 마커 추가
 function addCastleMarker(lat, lng, koreanName, japaneseName, visitUrl, castleId) {
-    // 커스텀 성 아이콘
+    // 커스텀 성 아이콘 (성 이름 포함)
     const castleIcon = L.divIcon({
         className: 'custom-castle-marker',
         html: `
             <div style="
-                background: #007bff;
-                color: white;
-                border-radius: 50%;
-                width: 32px;
-                height: 32px;
                 display: flex;
+                flex-direction: column;
                 align-items: center;
-                justify-content: center;
-                border: 3px solid white;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-                font-size: 16px;
-            ">🏰</div>
+                text-align: center;
+            ">
+                <div style="
+                    background: #007bff;
+                    color: white;
+                    border-radius: 50%;
+                    width: 32px;
+                    height: 32px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 3px solid white;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                    font-size: 16px;
+                ">🏰</div>
+                <div style="
+                    background: rgba(255,255,255,0.95);
+                    border: 1px solid #007bff;
+                    border-radius: 4px;
+                    padding: 2px 6px;
+                    font-size: 11px;
+                    font-weight: bold;
+                    color: #007bff;
+                    margin-top: 2px;
+                    white-space: nowrap;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                ">${koreanName}</div>
+            </div>
         `,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -16]
+        iconSize: [120, 60],
+        iconAnchor: [60, 32],
+        popupAnchor: [0, -32]
     });
 
     const marker = L.marker([lat, lng], { icon: castleIcon }).addTo(map);
