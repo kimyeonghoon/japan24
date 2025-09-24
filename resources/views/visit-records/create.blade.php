@@ -100,11 +100,9 @@
                 <div class="row">
                     <div class="col-md-6">
                         <p><strong>위치:</strong> {{ $castle->prefecture }}</p>
-                        <p><strong>방문 시간:</strong> {{ $castle->visiting_hours }}</p>
-                        <p><strong>입장료:</strong> {{ $castle->entrance_fee }}</p>
+                        <p><strong>스탬프 위치:</strong> {{ $castle->official_stamp_location }}</p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>스탬프 위치:</strong> {{ $castle->official_stamp_location }}</p>
                         <p><strong>GPS 좌표:</strong> {{ $castle->latitude }}, {{ $castle->longitude }}</p>
                     </div>
                 </div>

@@ -44,6 +44,12 @@
         .navbar-brand {
             font-weight: 600;
         }
+
+        /* Navigation bar black color */
+        .navbar.bg-primary {
+            background-color: #000000 !important;
+            border-color: #000000 !important;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -51,7 +57,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
-                <i class="bi bi-building me-2"></i>24명성 인증 앱
+                24명성 인증 앱
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -62,25 +68,27 @@
                 <ul class="navbar-nav me-auto">
                     @auth
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('dashboard') }}">
-                                <i class="bi bi-speedometer2 me-1"></i>대시보드
+                            <a class="nav-link {{ request()->routeIs('dashboard') ? 'fw-bold' : '' }}" href="{{ route('dashboard') }}">
+                                대시보드
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('castles.index') }}">
-                                <i class="bi bi-list me-1"></i>성 목록
+                            <a class="nav-link {{ request()->routeIs('castles.map') ? 'fw-bold' : '' }}" href="{{ route('castles.map') }}">
+                                탐색
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('castles.map') }}">
-                                <i class="bi bi-geo-alt me-1"></i>지도
+                            <a class="nav-link {{ request()->routeIs('visit-records.*') ? 'fw-bold' : '' }}" href="{{ route('visit-records.index') }}">
+                                방문 기록
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('visit-records.index') }}">
-                                <i class="bi bi-journal-check me-1"></i>방문 기록
-                            </a>
-                        </li>
+                        @if(auth()->user()->isAdmin())
+                            <li class="nav-item">
+                                <a class="nav-link text-warning {{ request()->routeIs('admin.*') ? 'fw-bold' : '' }}" href="{{ route('admin.dashboard') }}">
+                                    관리자
+                                </a>
+                            </li>
+                        @endif
                     @endauth
                 </ul>
 
@@ -88,14 +96,14 @@
                     @auth
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle me-1"></i>{{ Auth::user()->name }}
+                                {{ Auth::user()->name }}
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
                                         <button type="submit" class="dropdown-item">
-                                            <i class="bi bi-box-arrow-right me-1"></i>로그아웃
+                                            로그아웃
                                         </button>
                                     </form>
                                 </li>
@@ -120,7 +128,7 @@
         @if (session('success'))
             <div class="container mt-3">
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
+                    ✓ {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             </div>
@@ -129,7 +137,7 @@
         @if (session('error'))
             <div class="container mt-3">
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}
+                    ⚠ {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             </div>
@@ -147,6 +155,7 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 
     @stack('scripts')
 </body>

@@ -19,8 +19,11 @@
     <!-- Bootstrap CSS with integrity check -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
           rel="stylesheet"
-          integrity="sha384-9ndCyUa6J81PMIO3UOqC3YNDPNcGR6+7dWy6LCtKF6vEU8rNGJj5d9rG3t3ZU7"
+          integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
           crossorigin="anonymous">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
     <!-- Custom CSS for performance optimization -->
     <style>
@@ -52,40 +55,77 @@
             min-width: 20px;
             min-height: 20px;
         }
+
+        /* Navigation bar black color */
+        .navbar.bg-primary {
+            background-color: #000000 !important;
+            border-color: #000000 !important;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="/">24명성 인증 앱</a>
+            <a class="navbar-brand" href="{{ route('home') }}">
+                24명성 인증 앱
+            </a>
 
-            <div class="navbar-nav ms-auto">
-                @auth
-                    <a class="nav-link" href="/dashboard">대시보드</a>
-                    <a class="nav-link" href="{{ route('castles.index') }}">성 목록</a>
-                    <a class="nav-link" href="{{ route('castles.map') }}">지도</a>
-                    <a class="nav-link" href="{{ route('visit-records.index') }}">내 기록</a>
-                    <a class="nav-link" href="{{ route('social.feed') }}">🤝 소셜</a>
-                    <a class="nav-link position-relative" href="{{ route('notifications.index') }}" id="notificationsLink">
-                        🔔 알림
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                              id="notificationBadge" style="display: none; font-size: 0.6rem;">
-                            0
-                        </span>
-                    </a>
-                    @if(auth()->user()->isAdmin())
-                        <a class="nav-link text-warning" href="{{ route('admin.dashboard') }}">
-                            🛠️ 관리자
-                        </a>
-                    @endif
-                    <form method="POST" action="/logout" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-outline-light btn-sm">로그아웃</button>
-                    </form>
-                @else
-                    <a class="nav-link" href="/login">로그인</a>
-                    <a class="nav-link" href="/register">회원가입</a>
-                @endauth
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    @auth
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('dashboard') ? 'fw-bold' : '' }}" href="{{ route('dashboard') }}">
+                                대시보드
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('castles.map') ? 'fw-bold' : '' }}" href="{{ route('castles.map') }}">
+                                탐색
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('visit-records.*') ? 'fw-bold' : '' }}" href="{{ route('visit-records.index') }}">
+                                방문 기록
+                            </a>
+                        </li>
+                        @if(auth()->user()->isAdmin())
+                            <li class="nav-item">
+                                <a class="nav-link text-warning {{ request()->routeIs('admin.*') ? 'fw-bold' : '' }}" href="{{ route('admin.dashboard') }}">
+                                    관리자
+                                </a>
+                            </li>
+                        @endif
+                    @endauth
+                </ul>
+
+                <ul class="navbar-nav">
+                    @auth
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                {{ Auth::user()->name }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item">로그아웃</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    @else
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('login') }}">로그인</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('register') }}">회원가입</a>
+                        </li>
+                    @endauth
+                </ul>
             </div>
         </div>
     </nav>
@@ -102,75 +142,6 @@
 
     @auth
     <script>
-        // Performance optimized notification management
-        let notificationUpdateTimer;
-        let isPageVisible = true;
-
-        // Debounced notification update function
-        function updateNotificationBadge() {
-            // Skip updates when page is not visible
-            if (!isPageVisible) return;
-
-            // Clear existing timer
-            if (notificationUpdateTimer) {
-                clearTimeout(notificationUpdateTimer);
-            }
-
-            notificationUpdateTimer = setTimeout(() => {
-                fetch('{{ route("api.notifications.unread-count") }}', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Cache-Control': 'no-cache'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(data => {
-                    const badge = document.getElementById('notificationBadge');
-                    if (badge) {
-                        if (data.count > 0) {
-                            badge.textContent = data.count > 99 ? '99+' : data.count;
-                            badge.style.display = 'block';
-                        } else {
-                            badge.style.display = 'none';
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.warn('알림 개수 업데이트 실패:', error);
-                });
-            }, 100); // 100ms debounce
-        }
-
-        // Page visibility change handler
-        function handleVisibilityChange() {
-            isPageVisible = !document.hidden;
-            if (isPageVisible) {
-                updateNotificationBadge();
-            }
-        }
-
-        // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initial update
-            updateNotificationBadge();
-
-            // Update when page becomes visible
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-
-            // Periodic update (only when page is visible)
-            setInterval(() => {
-                if (isPageVisible) {
-                    updateNotificationBadge();
-                }
-            }, 30000); // 30 seconds
-
-            // Update on focus (user returns to tab)
-            window.addEventListener('focus', updateNotificationBadge);
-        });
     </script>
     @endauth
 </body>

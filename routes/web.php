@@ -3,13 +3,11 @@
 use App\Http\Controllers\CastleController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\VisitRecordController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\SocialController;
 use Illuminate\Support\Facades\Route;
 
-// 홈페이지
+// 홈페이지 - 바로 로그인 페이지로 리다이렉트
 Route::get('/', function () {
-    return response('<h1>24명성 인증 앱</h1><p>환영합니다!</p><a href="/login">로그인</a> | <a href="/register">회원가입</a>');
+    return redirect()->route('login');
 })->name('home');
 
 // 공개 API (인증 불필요)
@@ -25,6 +23,10 @@ Route::prefix('api/public')->group(function () {
         ]);
     })->name('api.status');
 });
+
+// 모니터링 엔드포인트 (인증 불필요)
+Route::get('/health', [App\Http\Controllers\HealthController::class, 'health'])->name('health');
+Route::get('/metrics', [App\Http\Controllers\HealthController::class, 'metrics'])->name('metrics');
 
 // 인증이 필요한 라우트들
 Route::middleware(['auth'])->group(function () {
@@ -42,26 +44,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/castles/{castle}/visit', [VisitRecordController::class, 'store'])->name('visit-records.store');
     Route::get('/visit-records/{visitRecord}', [VisitRecordController::class, 'show'])->name('visit-records.show');
 
-    // 알림 관련 라우트
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
-    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
-    Route::get('/api/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('api.notifications.unread-count');
-    Route::get('/api/notifications/recent', [NotificationController::class, 'getRecent'])->name('api.notifications.recent');
-
-    // 소셜 기능 라우트
-    Route::get('/social/feed', [SocialController::class, 'feed'])->name('social.feed');
-    Route::get('/social/friends', [SocialController::class, 'friends'])->name('social.friends');
-    Route::get('/social/profile/{user}', [SocialController::class, 'profile'])->name('social.profile');
-    Route::post('/social/friend-request/{user}', [SocialController::class, 'sendFriendRequest'])
-        ->middleware('throttle:friend-requests')
-        ->name('social.friend-request.send');
-    Route::post('/social/friend-request/{user}/accept', [SocialController::class, 'acceptFriendRequest'])->name('social.friend-request.accept');
-    Route::post('/social/friend-request/{user}/reject', [SocialController::class, 'rejectFriendRequest'])->name('social.friend-request.reject');
-    Route::delete('/social/friend/{user}', [SocialController::class, 'unfriend'])->name('social.unfriend');
-    Route::post('/social/visit-record/{visitRecord}/like', [SocialController::class, 'toggleLike'])
-        ->middleware('throttle:likes')
-        ->name('social.visit-record.like');
 });
 
 // 관리자 전용 라우트들
@@ -73,6 +55,11 @@ Route::middleware(['auth', App\Http\Middleware\AdminMiddleware::class])->prefix(
     Route::get('/users', [App\Http\Controllers\AdminController::class, 'users'])->name('users');
     Route::post('/users/{user}/toggle-admin', [App\Http\Controllers\AdminController::class, 'toggleAdmin'])->name('users.toggle-admin');
     Route::get('/statistics', [App\Http\Controllers\AdminController::class, 'statistics'])->name('statistics');
+    Route::get('/settings', [App\Http\Controllers\AdminController::class, 'settings'])->name('settings');
+    Route::post('/settings', [App\Http\Controllers\AdminController::class, 'updateSettings'])->name('settings.update');
+    Route::get('/security', [App\Http\Controllers\AdminController::class, 'security'])->name('security');
+    Route::post('/security/block-ip', [App\Http\Controllers\AdminController::class, 'blockIP'])->name('security.block-ip');
+    Route::post('/security/unblock-ip', [App\Http\Controllers\AdminController::class, 'unblockIP'])->name('security.unblock-ip');
 });
 
 // 기본 인증 라우트들 (Laravel UI 또는 Breeze가 없으므로 수동으로 추가)

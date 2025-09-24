@@ -33,9 +33,11 @@
                     </div>
                 </form>
 
+                @if($registrationEnabled ?? true)
                 <div class="text-center mt-3">
                     <a href="/register">회원가입</a>
                 </div>
+                @endif
             </div>
         </div>
     </div>

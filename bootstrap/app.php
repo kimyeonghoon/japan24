@@ -13,6 +13,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'rate.limit.friends' => \App\Http\Middleware\RateLimitFriendRequests::class,
+            'security' => \App\Http\Middleware\SecurityMiddleware::class,
+        ]);
+
+        // 웹 그룹에 보안 미들웨어 적용
+        $middleware->web(append: [
+            \App\Http\Middleware\SecurityMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

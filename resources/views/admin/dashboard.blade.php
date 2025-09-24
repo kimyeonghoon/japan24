@@ -95,8 +95,13 @@
                                 </a>
                             </div>
                             <div class="col-md-3 mb-2">
-                                <a href="{{ route('castles.map') }}" class="btn btn-outline-primary w-100">
-                                    🗺️ 지도 보기
+                                <a href="{{ route('admin.settings') }}" class="btn btn-outline-secondary w-100">
+                                    ⚙️ 시스템 설정
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a href="{{ route('admin.security') }}" class="btn btn-outline-danger w-100">
+                                    🔐 보안 모니터링
                                 </a>
                             </div>
                         </div>
