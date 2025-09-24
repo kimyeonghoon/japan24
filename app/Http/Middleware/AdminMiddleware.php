@@ -20,7 +20,7 @@ class AdminMiddleware
         }
 
         if (!auth()->user()->isAdmin()) {
-            abort(403, '관리자 권한이 필요합니다.');
+            return redirect()->route('dashboard');
         }
 
         return $next($request);

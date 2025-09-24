@@ -78,7 +78,7 @@ class User extends Authenticatable
     public function visitedCastles()
     {
         return $this->belongsToMany(Castle::class, 'visit_records')
-                   ->where('visit_records.verification_status', 'approved');
+            ->where('visit_records.verification_status', 'approved');
     }
 
     /**
@@ -132,5 +132,21 @@ class User extends Authenticatable
                 }
             }
         }
+    }
+
+    /**
+     * 관리자로 승격
+     */
+    public function makeAdmin(): void
+    {
+        $this->update(['is_admin' => true]);
+    }
+
+    /**
+     * 관리자 권한 해제
+     */
+    public function removeAdmin(): void
+    {
+        $this->update(['is_admin' => false]);
     }
 }

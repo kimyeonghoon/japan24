@@ -1,0 +1,11 @@
+[Unit]
+Description=Japan24 Health Check
+Wants=japan24-health.timer
+
+[Service]
+Type=oneshot
+ExecStart=/home/kim-yeonghoon/workspace/Japan24/scripts/health-checks/app-health.sh
+WorkingDirectory=/home/kim-yeonghoon/workspace/Japan24
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+/var/log/japan24-health.log {
+    daily
+    missingok
+    rotate 30
+    compress
+    delaycompress
+    notifempty
+    copytruncate
+}
