@@ -20,7 +20,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '하코다테 부교소 이타쿠라 휴게소, 고료카쿠 타워 매표소',
                 'googlemap' => 'https://maps.app.goo.gl/VT2dPYnuYSc5ito29',
                 'access_method' => 'JR 하코다테역에서 버스로 고료카쿠공원입구까지, 도보 10분',
-                'official_website' => 'https://www.goryokaku-tower.co.jp/en/'
+                'official_website' => 'https://www.japan.travel/ko/spot/1904/'
             ],
             [
                 'name' => '弘前城',
@@ -32,11 +32,11 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '히로사키성 안내센터',
                 'googlemap' => 'https://maps.app.goo.gl/NwBwYbDnC4w4LErx7',
                 'access_method' => 'JR 히로사키역에서 버스로 시야쿠쇼마에까지, 도보 5분',
-                'official_website' => 'https://www.hirosakipark.jp/en/'
+                'official_website' => 'https://www.japan.travel/ko/spot/1836/'
             ],
             [
                 'name' => '会津若松城',
-                'name_korean' => '아이즈와카마츠성',
+                'name_korean' => '아이즈와카마츠성(쓰루가성)',
                 'prefecture' => '福島県(후쿠시마현)',
                 'latitude' => 37.48773525,
                 'longitude' => 139.92976605913537,
@@ -44,7 +44,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '천수각 내부 매장',
                 'googlemap' => 'https://maps.app.goo.gl/iAbkmd8e2mXxF4yA8',
                 'access_method' => 'JR 아이즈와카마츠역에서 버스로 츠루가조키타구치까지, 도보 3분',
-                'official_website' => 'http://www.tsurugajo.com/language/eng/'
+                'official_website' => 'https://www.japan.travel/ko/spot/1757/'
             ],
             [
                 'name' => '江戸城',
@@ -56,7 +56,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '난코, 와다쿠라, 키타노마루 휴게소',
                 'googlemap' => 'https://maps.app.goo.gl/hBoY45k5tJBQJDmH7',
                 'access_method' => 'JR 도쿄역 또는 오테마치 지하철역에서 도보 5분',
-                'official_website' => 'https://visit-chiyoda.tokyo.t.ie.hp.transer.com/app/en/spot/detail/405'
+                'official_website' => 'https://www.japan.travel/ko/spot/1734/'
             ],
             [
                 'name' => '小田原城',
@@ -68,7 +68,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '천수각 1층',
                 'googlemap' => 'https://maps.app.goo.gl/SeoZ2Ynw7jJS8yh99',
                 'access_method' => 'JR 오다와라역에서 도보 10분',
-                'official_website' => 'http://www.odawara-kankou.com.e.jk.hp.transer.com/spot/spot_area/jyoushi.html'
+                'official_website' => 'https://www.japan.travel/ko/spot/1568/'
             ],
             [
                 'name' => '上田城',
@@ -80,7 +80,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '우에다시 박물관, 우에다시 관광안내소',
                 'googlemap' => 'https://maps.app.goo.gl/kiV7oaDFtg2ToKmg9',
                 'access_method' => 'JR 우에다역에서 도보 10분',
-                'official_website' => 'https://go.ueda-kanko.or.jp/special/castle_town/'
+                'official_website' => 'https://www.japan.travel/ko/spot/1340/'
             ],
             [
                 'name' => '松本城',
@@ -92,7 +92,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '마츠모토성 관리사무소',
                 'googlemap' => 'https://maps.app.goo.gl/taqk2upiodRTMM547',
                 'access_method' => 'JR 마츠모토역에서 도보 15분',
-                'official_website' => 'https://www.matsumoto-castle.jp/lang/'
+                'official_website' => 'https://www.japan.travel/ko/spot/1356/'
             ],
             [
                 'name' => '金沢城',
@@ -104,7 +104,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '니노마루 안내센터, 이시카와몬 입구 안내센터',
                 'googlemap' => 'hhttps://maps.app.goo.gl/wdViG7qKZa24qLMZ9',
                 'access_method' => 'JR 가나자와역에서 버스로 겐로쿠엔시타까지, 도보 5분',
-                'official_website' => 'http://www.pref.ishikawa.jp/siro-niwa/english/top.html'
+                'official_website' => 'https://www.japan.travel/ko/spot/1402/'
             ],
             [
                 'name' => '丸岡城',
@@ -116,7 +116,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '카스미가성 공원 관리사무소 (매표소)',
                 'googlemap' => 'https://maps.app.goo.gl/UnBLDbHaeNybJYNX7',
                 'access_method' => 'JR 후쿠이역에서 버스로 마루오카조까지, 도보 5분',
-                'official_website' => 'https://enjoy.pref.fukui.lg.jp/en/spot/spot-20/'
+                'official_website' => 'https://www.japan.travel/ko/spot/1382/'
             ],
             [
                 'name' => '犬山城',
@@ -128,7 +128,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '성문 2층, 이누야마성 관리사무소',
                 'googlemap' => 'https://maps.app.goo.gl/imEVJHfYW8fqPESCA',
                 'access_method' => '메이테츠 이누야마유엔역에서 도보 15분',
-                'official_website' => 'https://inuyamajo.jp/'
+                'official_website' => 'https://www.japan.travel/ko/spot/1246/'
             ],
             [
                 'name' => '名古屋城',
@@ -164,7 +164,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '휴게소',
                 'googlemap' => 'https://maps.app.goo.gl/ABRoudqoAjxFmRNm6',
                 'access_method' => 'JR 교토역에서 버스로 니조조마에까지, 또는 니조조마에 지하철역',
-                'official_website' => 'http://nijo-jocastle.city.kyoto.lg.jp/?lang=en'
+                'official_website' => 'https://www.japan.travel/ko/spot/1165/'
             ],
             [
                 'name' => '大阪城',
@@ -176,7 +176,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '천수각 1층 안내소',
                 'googlemap' => 'https://maps.app.goo.gl/4qpGELoZxZkuQQES6',
                 'access_method' => 'JR 오사카조코엔역 또는 모리노미야역에서 도보 15분',
-                'official_website' => 'https://www.osakacastle.net/english/'
+                'official_website' => 'https://www.japan.travel/ko/spot/1087/'
             ],
             [
                 'name' => '姫路城',
@@ -188,7 +188,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '정문 옆 관리사무소',
                 'googlemap' => 'https://maps.app.goo.gl/u4a4HfEHR5Q2ReyV6',
                 'access_method' => 'JR 히메지역에서 도보 20분',
-                'official_website' => 'http://www.himejicastle.jp/en/'
+                'official_website' => 'https://www.japan.travel/ko/spot/1030/'
             ],
             [
                 'name' => '松江城',
@@ -200,11 +200,11 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '천수각 접수처',
                 'googlemap' => 'https://maps.app.goo.gl/XfG17RYNqtKqXb3Y6',
                 'access_method' => 'JR 마츠에역에서 버스로 오테마에까지, 도보 5분',
-                'official_website' => 'https://www.visit-matsue.com/discover/city_centre/north_side'
+                'official_website' => 'https://www.japan.travel/ko/spot/933/'
             ],
             [
                 'name' => '備中松山城',
-                'name_korean' => '비추마츠야마성',
+                'name_korean' => '빗추마쓰야마성',
                 'prefecture' => '岡山県(오카야마현)',
                 'latitude' => 34.80870575,
                 'longitude' => 133.62214678,
@@ -212,7 +212,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '매표소',
                 'googlemap' => 'https://maps.app.goo.gl/FNvqrx4R8zwXTcqN6',
                 'access_method' => 'JR 비추타카하시역에서 버스로 마츠야마성 등산로까지, 도보 50분',
-                'official_website' => 'https://www.city.takahashi.okayama.jp/'
+                'official_website' => 'https://www.japan.travel/ko/spot/904/'
             ],
             [
                 'name' => '広島城',
@@ -224,7 +224,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '1층 박물관 매장',
                 'googlemap' => 'https://maps.app.goo.gl/Xdp4B1NZzWxn1u1o9',
                 'access_method' => 'JR 히로시마역에서 전차로 가미야초히가시까지, 도보 15분',
-                'official_website' => 'https://visithiroshima.net/things_to_do/attractions/historical_places/hiroshima_castle.html'
+                'official_website' => 'https://www.japan.travel/ko/spot/146/'
             ],
             [
                 'name' => '丸亀城',
@@ -236,7 +236,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '천수각 내부',
                 'googlemap' => 'https://maps.app.goo.gl/p67aNwYfVputwLgL8',
                 'access_method' => 'JR 마루가메역에서 도보 10분',
-                'official_website' => 'https://www-city-marugame-lg-jp.translate.goog/site/castle/'
+                'official_website' => 'https://www.japan.travel/ko/spot/829/'
             ],
             [
                 'name' => '松山城',
@@ -248,7 +248,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '천수각 입구',
                 'googlemap' => 'https://maps.app.goo.gl/m1cx3tifGbU9rjkd9',
                 'access_method' => 'JR 마츠야마역에서 전차로 오카이도까지, 로프웨이 도보 5분',
-                'official_website' => 'https://en.matsuyama-sightseeing.com/appeal/castle/'
+                'official_website' => 'https://www.japan.travel/ko/spot/819/'
             ],
             [
                 'name' => '宇和島城',
@@ -260,7 +260,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '천수각 내부',
                 'googlemap' => 'https://maps.app.goo.gl/Dm2SbUMywNWVS29e7',
                 'access_method' => 'JR 우와지마역에서 도보 20분',
-                'official_website' => 'https://uwajima-tourism.org/en/spot/detail/place_id/72/'
+                'official_website' => 'https://www.japan.travel/ko/spot/815/'
             ],
             [
                 'name' => '高知城',
@@ -272,7 +272,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '천수각 입구',
                 'googlemap' => 'https://maps.app.goo.gl/8w9DBHMFg4YhyT9Y9',
                 'access_method' => 'JR 고치역에서 전차로 하리마야바시 경유 고치조마에역까지, 도보 5분',
-                'official_website' => 'https://visitkochijapan.com/en/see-and-do/10009'
+                'official_website' => 'https://www.japan.travel/ko/spot/808/'
             ],
             [
                 'name' => '熊本城',
@@ -284,7 +284,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '니노마루 매표소, 와쿠와쿠자 매표소, 남입구 매표소, 북입구 매표소',
                 'googlemap' => 'https://maps.app.goo.gl/w5hQutFvvUXYU4Sc7',
                 'access_method' => 'JR 구마모토역에서 전차로 구마모토조/시야쿠쇼마에역까지, 사쿠라노바바 조사이엔까지 도보 10분',
-                'official_website' => 'https://castle.kumamoto-guide.jp/en/'
+                'official_website' => 'https://www.japan.travel/ko/spot/638/'
             ],
             [
                 'name' => '首里城',
@@ -296,7 +296,7 @@ class CastleSeeder extends Seeder
                 'official_stamp_location' => '수이무이칸',
                 'googlemap' => 'https://maps.app.goo.gl/nh8iF8NvbA9tAHTs5',
                 'access_method' => '모노레일로 슈리역 또는 기보역까지, 슈레이몬까지 도보 15분',
-                'official_website' => 'http://oki-park.jp/shurijo/en/'
+                'official_website' => 'https://www.japan.travel/ko/spot/574/'
             ]
         ];
 
