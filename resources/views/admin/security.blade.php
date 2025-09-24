@@ -156,7 +156,7 @@
                     <div style="max-height: 400px; overflow-y: auto;">
                         @foreach($recentFailedAttempts as $attempt)
                             <div class="mb-2 p-2 bg-light rounded">
-                                <code class="small">{{ trim($attempt) }}</code>
+                                <code class="small">{{ htmlspecialchars(trim($attempt), ENT_QUOTES, 'UTF-8') }}</code>
                             </div>
                         @endforeach
                     </div>

@@ -227,18 +227,26 @@ class AdminController extends Controller
     {
         // 차단된 IP 목록
         $blockedIPs = collect();
-        $allKeys = Cache::getStore()->getRedis()->keys('*blocked_ip:*');
+        // SQLite 캐시 환경과 호환되는 방식으로 차단된 IP 조회
+        $cachedIPs = DB::table('cache')
+            ->where('key', 'LIKE', '%blocked_ip:%')
+            ->get();
 
-        foreach ($allKeys as $key) {
-            $cleanKey = str_replace(config('database.redis.options.prefix', ''), '', $key);
-            $data = Cache::get($cleanKey);
-            if ($data) {
-                $ip = str_replace('blocked_ip:', '', $cleanKey);
+        foreach ($cachedIPs as $cacheItem) {
+            try {
+                $data = unserialize($cacheItem->value);
+                $ip = str_replace('blocked_ip:', '', $cacheItem->key);
                 $blockedIPs->push([
                     'ip' => $ip,
                     'reason' => $data['reason'] ?? 'Unknown',
                     'blocked_at' => $data['blocked_at'] ?? null,
                     'expires_at' => $data['expires_at'] ?? null,
+                ]);
+            } catch (\Exception $e) {
+                // 역직렬화 실패 시 로그 남기고 건너뛰기
+                Log::warning('Failed to unserialize blocked IP data', [
+                    'key' => $cacheItem->key,
+                    'error' => $e->getMessage()
                 ]);
             }
         }
