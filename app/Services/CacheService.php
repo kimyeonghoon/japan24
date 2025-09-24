@@ -78,11 +78,11 @@ class CacheService
     /**
      * 사용자별 상세 통계를 캐시에서 가져옵니다.
      *
-     * 특정 사용자의 방문 기록, 배지, 친구 수 등의 통계 정보를 제공합니다.
+     * 특정 사용자의 방문 기록, 배지 등의 통계 정보를 제공합니다.
      * 캐시 만료 시간: 10분 (사용자 활동에 따라 자주 변경될 수 있음)
      *
      * @param int $userId 조회할 사용자 ID
-     * @return array 사용자 통계 배열 (총 방문, 승인된 방문, 대기 중 방문, 배지 수, 친구 수, 완주율)
+     * @return array 사용자 통계 배열 (총 방문, 승인된 방문, 대기 중 방문, 배지 수, 완주율)
      */
     public function getUserStats(int $userId): array
     {
@@ -97,7 +97,6 @@ class CacheService
                 'approved_visits' => $user->visitRecords()->where('verification_status', 'approved')->count(),
                 'pending_visits' => $user->visitRecords()->where('verification_status', 'pending')->count(),
                 'badge_count' => $user->badges()->count(),
-                'friends_count' => $user->friends()->count(),
                 'completion_rate' => $this->calculateCompletionRate($user),
             ];
         });

@@ -3,12 +3,8 @@
 @section('content')
 <div class="row">
     <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>24명성 지도</h2>
-            <div>
-                <a href="{{ route('castles.index') }}" class="btn btn-outline-primary">목록 보기</a>
-                <a href="{{ route('dashboard') }}" class="btn btn-primary">대시보드</a>
-            </div>
+        <div class="mb-4">
+            <h2>24명성 탐색</h2>
         </div>
 
         <!-- 지도 컨테이너 -->
@@ -26,31 +22,31 @@
             <div class="card-body">
                 <div class="row">
                     @foreach($castles as $castle)
-                        <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <div class="card h-100 castle-card" data-castle-id="{{ $castle->id }}"
                                  data-lat="{{ $castle->latitude }}" data-lng="{{ $castle->longitude }}">
                                 <div class="card-body">
-                                    <h6 class="card-title">{{ $castle->name_korean }}</h6>
-                                    <p class="card-text small text-muted">{{ $castle->name }}</p>
+                                    <h6 class="card-title">{{ $castle->name }}({{ $castle->name_korean }})</h6>
+                                    <p class="card-text small">{{ $castle->description }}</p>
                                     <p class="card-text">
                                         <small class="text-muted">
                                             <i class="bi bi-geo-alt"></i> {{ $castle->prefecture }}<br>
-                                            <i class="bi bi-clock"></i> {{ $castle->visiting_hours }}<br>
-                                            <i class="bi bi-currency-yen"></i>
-                                            @if($castle->entrance_fee > 0)
-                                                {{ number_format($castle->entrance_fee) }}원
-                                            @else
-                                                무료
-                                            @endif
+                                            <i class="bi bi-train-front"></i> {{ $castle->access_method }}<br>
+                                            <i class="bi bi-award"></i> {{ $castle->official_stamp_location }}
                                         </small>
                                     </p>
-                                    <div class="d-flex gap-2">
+                                    <div class="d-flex gap-2 flex-wrap">
                                         <button class="btn btn-sm btn-outline-primary" onclick="focusOnCastle({{ $castle->latitude }}, {{ $castle->longitude }})">
                                             지도에서 보기
                                         </button>
                                         <a href="{{ route('visit-records.create', $castle) }}" class="btn btn-sm btn-success">
                                             방문 인증
                                         </a>
+                                        @if($castle->official_website)
+                                        <a href="{{ $castle->official_website }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-globe"></i> 공식사이트
+                                        </a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -94,7 +90,8 @@ function initMap() {
     @foreach($castles as $castle)
         addCastleMarker({{ $castle->latitude }}, {{ $castle->longitude }},
                        "{{ $castle->name_korean }}", "{{ $castle->name }}",
-                       "{{ route('visit-records.create', $castle) }}", {{ $castle->id }});
+                       "{{ route('visit-records.create', $castle) }}", {{ $castle->id }},
+                       @if($castle->image_url)"{{ $castle->image_url }}"@else null @endif);
     @endforeach
 
     // URL 파라미터로 특정 성에 포커스
@@ -120,66 +117,166 @@ function initMap() {
 }
 
 // 성 마커 추가
-function addCastleMarker(lat, lng, koreanName, japaneseName, visitUrl, castleId) {
-    // 커스텀 성 아이콘 (성 이름 포함)
-    const castleIcon = L.divIcon({
-        className: 'custom-castle-marker',
-        html: `
-            <div style="
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            ">
+function addCastleMarker(lat, lng, koreanName, japaneseName, visitUrl, castleId, imageUrl = null) {
+    let castleIcon;
+
+    // 이미지 URL이 있으면 커스텀 이미지 마커 사용
+    if (imageUrl) {
+        // 고로카쿠는 기존 이미지 사용, 나머지는 새 이미지 사용
+        const markerImageUrl = castleId === 1 ? '/images/markers/goryokaku_200.png' : imageUrl.replace('_aspect.png', '.png');
+
+        castleIcon = L.divIcon({
+            className: 'custom-castle-marker',
+            html: `
                 <div style="
-                    background: #007bff;
-                    color: white;
-                    border-radius: 50%;
-                    width: 32px;
-                    height: 32px;
                     display: flex;
+                    flex-direction: column;
                     align-items: center;
-                    justify-content: center;
-                    border: 3px solid white;
-                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-                    font-size: 16px;
-                ">🏰</div>
+                    text-align: center;
+                ">
+                    <div style="
+                        background: url('${markerImageUrl}') center/cover;
+                        border-radius: 50%;
+                        width: 48px;
+                        height: 48px;
+                        border: 3px solid white;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                    "></div>
+                    <div style="
+                        background: rgba(255,255,255,0.95);
+                        border: 1px solid #007bff;
+                        border-radius: 4px;
+                        padding: 2px 6px;
+                        font-size: 11px;
+                        font-weight: bold;
+                        color: #007bff;
+                        margin-top: 2px;
+                        white-space: nowrap;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                    ">${koreanName}</div>
+                </div>
+            `,
+            iconSize: [120, 60],
+            iconAnchor: [60, 32],
+            popupAnchor: [0, -32]
+        });
+    } else {
+        // 이미지가 없으면 기존 divIcon 사용
+        castleIcon = L.divIcon({
+            className: 'custom-castle-marker',
+            html: `
                 <div style="
-                    background: rgba(255,255,255,0.95);
-                    border: 1px solid #007bff;
-                    border-radius: 4px;
-                    padding: 2px 6px;
-                    font-size: 11px;
-                    font-weight: bold;
-                    color: #007bff;
-                    margin-top: 2px;
-                    white-space: nowrap;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-                ">${koreanName}</div>
-            </div>
-        `,
-        iconSize: [120, 60],
-        iconAnchor: [60, 32],
-        popupAnchor: [0, -32]
-    });
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    text-align: center;
+                ">
+                    <div style="
+                        background: #007bff;
+                        color: white;
+                        border-radius: 50%;
+                        width: 48px;
+                        height: 48px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border: 3px solid white;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                        font-size: 24px;
+                    ">🏰</div>
+                    <div style="
+                        background: rgba(255,255,255,0.95);
+                        border: 1px solid #007bff;
+                        border-radius: 4px;
+                        padding: 2px 6px;
+                        font-size: 11px;
+                        font-weight: bold;
+                        color: #007bff;
+                        margin-top: 2px;
+                        white-space: nowrap;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                    ">${koreanName}</div>
+                </div>
+            `,
+            iconSize: [120, 60],
+            iconAnchor: [60, 32],
+            popupAnchor: [0, -32]
+        });
+    }
 
     const marker = L.marker([lat, lng], { icon: castleIcon }).addTo(map);
     markers.push(marker);
 
     // 팝업 내용
-    const popupContent = `
-        <div style="min-width:200px; text-align:center;">
-            <h6 style="margin:0 0 5px 0; color:#007bff; font-weight:bold;">${koreanName}</h6>
-            <p style="margin:0 0 10px 0; font-size:12px; color:#666;">${japaneseName}</p>
-            <a href="${visitUrl}"
-               class="btn btn-sm btn-success"
-               style="text-decoration:none; background:#28a745; color:white;
-                      padding:8px 15px; border-radius:4px; font-size:12px;
-                      display:inline-block; margin-top:5px;">
-                🚩 방문 인증하기
-            </a>
-        </div>
-    `;
+    let popupContent;
+    if (imageUrl) {
+        // 이미지가 있는 성들은 이미지 포함 팝업
+        popupContent = `
+            <div style="
+                width: 300px;
+                text-align: center;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            ">
+                <div style="
+                    width: 260px;
+                    height: 162px;
+                    background: url('${imageUrl}') center/cover;
+                    border-radius: 12px;
+                    border: 4px solid white;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    margin: 0 0 15px 0;
+                "></div>
+                <h5 style="margin:0 0 8px 0; color:#007bff; font-weight:bold;">${koreanName}</h5>
+                <p style="margin:0 0 15px 0; font-size:14px; color:#666;">${japaneseName}</p>
+                <a href="${visitUrl}"
+                   class="btn btn-success"
+                   style="text-decoration:none; background:#28a745; color:white;
+                          padding:12px 24px; border-radius:6px; font-size:14px;
+                          display:inline-block; margin-top:5px; font-weight:bold;">
+                    🚩 방문 인증하기
+                </a>
+            </div>
+        `;
+    } else {
+        // 이미지가 없는 성들은 이모지 아이콘 포함 팝업
+        popupContent = `
+            <div style="
+                width: 300px;
+                text-align: center;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            ">
+                <div style="
+                    width: 200px;
+                    height: 200px;
+                    background: #007bff;
+                    color: white;
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 4px solid white;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    font-size: 80px;
+                    margin: 0 0 15px 0;
+                ">🏰</div>
+                <h5 style="margin:0 0 8px 0; color:#007bff; font-weight:bold;">${koreanName}</h5>
+                <p style="margin:0 0 15px 0; font-size:14px; color:#666;">${japaneseName}</p>
+                <a href="${visitUrl}"
+                   class="btn btn-success"
+                   style="text-decoration:none; background:#28a745; color:white;
+                          padding:12px 24px; border-radius:6px; font-size:14px;
+                          display:inline-block; margin-top:5px; font-weight:bold;">
+                    🚩 방문 인증하기
+                </a>
+            </div>
+        `;
+    }
 
     marker.bindPopup(popupContent);
 
@@ -193,6 +290,12 @@ function addCastleMarker(lat, lng, koreanName, japaneseName, visitUrl, castleId)
 // 특정 성에 지도 포커스
 function focusOnCastle(lat, lng) {
     map.setView([lat, lng], 15); // 확대해서 보기
+
+    // 지도로 스크롤
+    document.getElementById('map').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    });
 }
 
 // 성 카드 하이라이트

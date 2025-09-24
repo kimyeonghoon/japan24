@@ -3,8 +3,6 @@
 use App\Http\Controllers\CastleController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\VisitRecordController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\SocialController;
 use Illuminate\Support\Facades\Route;
 
 // 홈페이지
@@ -42,26 +40,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/castles/{castle}/visit', [VisitRecordController::class, 'store'])->name('visit-records.store');
     Route::get('/visit-records/{visitRecord}', [VisitRecordController::class, 'show'])->name('visit-records.show');
 
-    // 알림 관련 라우트
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
-    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
-    Route::get('/api/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('api.notifications.unread-count');
-    Route::get('/api/notifications/recent', [NotificationController::class, 'getRecent'])->name('api.notifications.recent');
-
-    // 소셜 기능 라우트
-    Route::get('/social/feed', [SocialController::class, 'feed'])->name('social.feed');
-    Route::get('/social/friends', [SocialController::class, 'friends'])->name('social.friends');
-    Route::get('/social/profile/{user}', [SocialController::class, 'profile'])->name('social.profile');
-    Route::post('/social/friend-request/{user}', [SocialController::class, 'sendFriendRequest'])
-        ->middleware('throttle:friend-requests')
-        ->name('social.friend-request.send');
-    Route::post('/social/friend-request/{user}/accept', [SocialController::class, 'acceptFriendRequest'])->name('social.friend-request.accept');
-    Route::post('/social/friend-request/{user}/reject', [SocialController::class, 'rejectFriendRequest'])->name('social.friend-request.reject');
-    Route::delete('/social/friend/{user}', [SocialController::class, 'unfriend'])->name('social.unfriend');
-    Route::post('/social/visit-record/{visitRecord}/like', [SocialController::class, 'toggleLike'])
-        ->middleware('throttle:likes')
-        ->name('social.visit-record.like');
 });
 
 // 관리자 전용 라우트들

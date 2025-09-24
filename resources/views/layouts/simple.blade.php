@@ -55,13 +55,19 @@
             min-width: 20px;
             min-height: 20px;
         }
+
+        /* Navigation bar black color */
+        .navbar.bg-primary {
+            background-color: #000000 !important;
+            border-color: #000000 !important;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
-                <i class="bi bi-building me-2"></i>24명성 인증 앱
+                24명성 인증 앱
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -73,42 +79,23 @@
                     @auth
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('dashboard') ? 'fw-bold' : '' }}" href="{{ route('dashboard') }}">
-                                <i class="bi bi-speedometer2 me-1"></i>대시보드
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('castles.*') && !request()->routeIs('castles.map') ? 'fw-bold' : '' }}" href="{{ route('castles.index') }}">
-                                <i class="bi bi-list me-1"></i>성 목록
+                                대시보드
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('castles.map') ? 'fw-bold' : '' }}" href="{{ route('castles.map') }}">
-                                <i class="bi bi-geo-alt me-1"></i>지도
+                                탐색
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('visit-records.*') ? 'fw-bold' : '' }}" href="{{ route('visit-records.index') }}">
-                                <i class="bi bi-journal-check me-1"></i>방문 기록
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('social.*') ? 'fw-bold' : '' }}" href="{{ route('social.feed') }}">
-                                <i class="bi bi-people me-1"></i>소셜
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link position-relative {{ request()->routeIs('notifications.*') ? 'fw-bold' : '' }}" href="{{ route('notifications.index') }}" id="notificationsLink">
-                                <i class="bi bi-bell me-1"></i>알림
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                      id="notificationBadge" style="display: none; font-size: 0.6rem;">
-                                    0
-                                </span>
+                                방문 기록
                             </a>
                         </li>
                         @if(auth()->user()->isAdmin())
                             <li class="nav-item">
                                 <a class="nav-link text-warning {{ request()->routeIs('admin.*') ? 'fw-bold' : '' }}" href="{{ route('admin.dashboard') }}">
-                                    <i class="bi bi-tools me-1"></i>관리자
+                                    관리자
                                 </a>
                             </li>
                         @endif
@@ -119,7 +106,7 @@
                     @auth
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle me-1"></i>{{ Auth::user()->name }}
+                                {{ Auth::user()->name }}
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
@@ -155,75 +142,6 @@
 
     @auth
     <script>
-        // Performance optimized notification management
-        let notificationUpdateTimer;
-        let isPageVisible = true;
-
-        // Debounced notification update function
-        function updateNotificationBadge() {
-            // Skip updates when page is not visible
-            if (!isPageVisible) return;
-
-            // Clear existing timer
-            if (notificationUpdateTimer) {
-                clearTimeout(notificationUpdateTimer);
-            }
-
-            notificationUpdateTimer = setTimeout(() => {
-                fetch('{{ route("api.notifications.unread-count") }}', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Cache-Control': 'no-cache'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(data => {
-                    const badge = document.getElementById('notificationBadge');
-                    if (badge) {
-                        if (data.count > 0) {
-                            badge.textContent = data.count > 99 ? '99+' : data.count;
-                            badge.style.display = 'block';
-                        } else {
-                            badge.style.display = 'none';
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.warn('알림 개수 업데이트 실패:', error);
-                });
-            }, 100); // 100ms debounce
-        }
-
-        // Page visibility change handler
-        function handleVisibilityChange() {
-            isPageVisible = !document.hidden;
-            if (isPageVisible) {
-                updateNotificationBadge();
-            }
-        }
-
-        // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initial update
-            updateNotificationBadge();
-
-            // Update when page becomes visible
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-
-            // Periodic update (only when page is visible)
-            setInterval(() => {
-                if (isPageVisible) {
-                    updateNotificationBadge();
-                }
-            }, 30000); // 30 seconds
-
-            // Update on focus (user returns to tab)
-            window.addEventListener('focus', updateNotificationBadge);
-        });
     </script>
     @endauth
 </body>

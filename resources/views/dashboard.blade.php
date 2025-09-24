@@ -1,9 +1,8 @@
-@extends('layouts.app')
+@extends('layouts.simple')
 
 @section('content')
-<div class="container py-4">
-    <!-- Header -->
-    <div class="row mb-4">
+<!-- Header -->
+<div class="row mb-4">
         <div class="col">
             <h1 class="display-6 fw-bold">
                 <i class="bi bi-speedometer2 me-3"></i>대시보드
@@ -99,17 +98,17 @@
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center">
                     <div class="text-center">
-                        <div class="progress-circle mx-auto mb-3" style="width: 150px; height: 150px;">
-                            <svg width="150" height="150" class="position-absolute">
-                                <circle cx="75" cy="75" r="60" fill="none" stroke="#e9ecef" stroke-width="10"></circle>
-                                <circle cx="75" cy="75" r="60" fill="none" stroke="#0d6efd" stroke-width="10"
-                                        stroke-dasharray="{{ 2 * 3.14159 * 60 }}"
-                                        stroke-dashoffset="{{ 2 * 3.14159 * 60 * (1 - $progressPercentage / 100) }}"
-                                        transform="rotate(-90 75 75)"
+                        <div class="progress-circle mx-auto mb-3 position-relative d-inline-block" style="width: 200px; height: 200px;">
+                            <svg width="200" height="200">
+                                <circle cx="100" cy="100" r="80" fill="none" stroke="#e9ecef" stroke-width="12"></circle>
+                                <circle cx="100" cy="100" r="80" fill="none" stroke="#0d6efd" stroke-width="12"
+                                        stroke-dasharray="{{ 2 * 3.14159 * 80 }}"
+                                        stroke-dashoffset="{{ 2 * 3.14159 * 80 * (1 - $progressPercentage / 100) }}"
+                                        transform="rotate(-90 100 100)"
                                         class="transition-all duration-500"></circle>
                             </svg>
-                            <div class="position-absolute top-50 start-50 translate-middle">
-                                <div class="h3 fw-bold text-primary mb-0">{{ $progressPercentage }}%</div>
+                            <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                <div class="h4 fw-bold text-primary mb-0">{{ $progressPercentage }}%</div>
                                 <div class="small text-muted">완료</div>
                             </div>
                         </div>
@@ -159,8 +158,8 @@
                         <div class="text-center py-4">
                             <i class="bi bi-journal-x display-4 text-muted mb-3"></i>
                             <p class="text-muted mb-3">아직 방문한 성이 없습니다.</p>
-                            <a href="{{ route('castles.index') }}" class="btn btn-primary">
-                                <i class="bi bi-building me-2"></i>성 목록 보기
+                            <a href="{{ route('castles.map') }}" class="btn btn-primary">
+                                <i class="bi bi-geo-alt me-2"></i>성 탐색하기
                             </a>
                         </div>
                     @endif
@@ -180,25 +179,19 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <div class="col-md-3">
-                            <a href="{{ route('castles.index') }}" class="btn btn-outline-primary w-100 p-3">
-                                <i class="bi bi-list fs-4 d-block mb-2"></i>
-                                성 목록
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="{{ route('castles.map') }}" class="btn btn-outline-success w-100 p-3">
+                        <div class="col-md-4">
+                            <a href="{{ route('castles.map') }}" class="btn btn-outline-primary w-100 p-3">
                                 <i class="bi bi-geo-alt fs-4 d-block mb-2"></i>
-                                지도 보기
+                                성 탐색
                             </a>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <a href="{{ route('visit-records.index') }}" class="btn btn-outline-warning w-100 p-3">
                                 <i class="bi bi-journal-check fs-4 d-block mb-2"></i>
                                 방문 기록
                             </a>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <button type="button" class="btn btn-outline-info w-100 p-3" data-bs-toggle="modal" data-bs-target="#badgeModal">
                                 <i class="bi bi-award fs-4 d-block mb-2"></i>
                                 배지 현황
@@ -253,5 +246,4 @@
             </div>
         </div>
     </div>
-</div>
 @endsection

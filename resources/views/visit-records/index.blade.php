@@ -3,11 +3,8 @@
 @section('content')
 <div class="row">
     <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="mb-4">
             <h2>나의 방문 기록</h2>
-            <a href="{{ route('castles.index') }}" class="btn btn-primary">
-                새 방문 기록 추가
-            </a>
         </div>
 
         @if(session('success'))

@@ -57,8 +57,6 @@
                         <h6>성 정보</h6>
                         <ul class="list-unstyled">
                             <li><strong>위치:</strong> {{ $visitRecord->castle->prefecture }}</li>
-                            <li><strong>방문 시간:</strong> {{ $visitRecord->castle->visiting_hours }}</li>
-                            <li><strong>입장료:</strong> {{ $visitRecord->castle->entrance_fee }}</li>
                             <li><strong>스탬프 위치:</strong> {{ $visitRecord->castle->official_stamp_location }}</li>
                         </ul>
                     </div>

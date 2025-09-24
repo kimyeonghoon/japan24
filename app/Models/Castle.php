@@ -16,17 +16,14 @@ class Castle extends Model
         'latitude',
         'longitude',
         'description',
-        'historical_info',
         'image_url',
         'official_stamp_location',
-        'visiting_hours',
-        'entrance_fee'
+        'googlemap'
     ];
 
     protected $casts = [
         'latitude' => 'decimal:8',
-        'longitude' => 'decimal:8',
-        'entrance_fee' => 'integer'
+        'longitude' => 'decimal:8'
     ];
 
     public function visitRecords()
